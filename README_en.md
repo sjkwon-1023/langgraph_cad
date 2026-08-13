@@ -28,6 +28,7 @@ pip install langgraph
 - Load ReAct, evaluator-optimizer, prompt-chaining, routing, and parallel-branch templates
 - See validation errors and warnings that catch missing nodes and paths during initial design, and focus nodes from linked messages
 - Preview generated Python code and copy it to the clipboard
+- Paste LangGraph Python source, review unreadable lines and implied nodes, and convert it into a canvas graph
 - Autosave and share through the URL, or export and import versioned JSON
 - Adjust an edge curve and reset it to its default shape
 - Use Editor/Code tabs and a palette drawer on narrow screens
@@ -96,6 +97,36 @@ warnings for isolated nodes, nodes unreachable from START, and nodes without a p
 the node or connection omissions that are easy to make when translating an initial design into
 code.
 
+### Import a graph from Python source
+
+Switch the right-hand code panel to `코드 붙여넣기` (Paste Code), enter LangGraph Python source,
+and select `그래프로 변환` (Convert to Graph). The review shows the node and edge counts, the
+number of unreadable lines, and nodes referenced by edges without an `add_node` call. Unreadable
+graph-building lines have a red background and an explanation. If only part of the source can be
+read, the review keeps those losses visible before you apply anything.
+
+`판정 결과 적용` (Apply Reviewed Result) asks again before replacing the current canvas. Canceling
+leaves both the canvas and share URL unchanged. After applying, the panel returns to generated
+code so the existing checks immediately report isolated nodes, nodes unreachable from START, and
+nodes without a path to END. If no graph-building call can be read, the current canvas is not
+replaced. The pasted source is temporary and is never stored in the graph, URL, or JSON export.
+
+The static importer supports:
+
+- `X = StateGraph(...)` and direct fields in `class State(TypedDict):`
+- `add_node` and `add_edge` with literal node names, plus single-identifier `add_node(fn)`
+- `add_conditional_edges` with a literal `path_map`
+- The legacy `set_entry_point` and `set_finish_point` APIs
+
+Calls with variable node names or edge targets, calls dynamically created inside loops,
+conditionals, or function blocks, conditionals without a `path_map`, and `add_sequence` remain
+unreadable. Full Python AST interpretation, multiple State schemas, and prebuilt mappings such as
+`ToolNode` or `tools_condition` are outside the importer's scope.
+
+When generated code is imported again, node labels become the identifiers present in the code,
+not the original canvas display labels. This loss is unavoidable because generated Python does
+not retain separate canvas-label metadata.
+
 ### Graph templates
 
 The template selector in the left palette loads one of five initial structures:
@@ -122,7 +153,7 @@ and router `TODO` bodies with application logic.
 
 - Connecting edges entirely from the keyboard is not yet supported.
 - The mobile palette drawer does not yet provide a focus trap.
-- Undo/redo and reverse-importing existing LangGraph Python code are not supported.
+- Undo/redo is not supported. Existing LangGraph Python can be imported only in the static forms described above.
 - Prebuilt mappings such as `ToolNode` and `tools_condition`, plus checkpointer/interrupt HITL UI, are not included.
 - `Send` API support and a subgraph node type are not included yet.
 - URL payloads are not compressed. Share large graphs as JSON files.

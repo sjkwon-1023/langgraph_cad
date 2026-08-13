@@ -463,6 +463,21 @@ export default function GraphEditor() {
     push('그래프 템플릿을 불러왔습니다.', 'success');
   }, [push, replaceGraph, requestUrlSave]);
 
+  const handleApplyPython = useCallback((result) => {
+    if (!result.state) return false;
+    const summary = [
+      `노드 ${result.summary.nodes}개`,
+      `엣지 ${result.summary.edges}개`,
+      `읽지 못한 줄 ${result.unreadable.length}개`,
+      `add_node 없이 참조된 노드 ${result.implied.length}개`,
+    ].join(' / ');
+    if (!window.confirm(`판정한 Python 코드로 현재 그래프를 덮어쓸까요?\n\n${summary}`)) return false;
+    requestUrlSave();
+    replaceGraph(result.state);
+    push(`Python 코드에서 그래프를 불러왔습니다. ${summary}`, 'success');
+    return true;
+  }, [push, replaceGraph, requestUrlSave]);
+
   const handleGraphNameChange = useCallback((nextGraphName) => {
     if (nextGraphName === graphName) return;
     requestUrlSave();
@@ -608,7 +623,7 @@ export default function GraphEditor() {
             aria-labelledby="code-tab"
             aria-hidden={isNarrow && mobileView !== 'code'}
             className={`code-pane ${mobileView === 'code' ? '' : 'mobile-hidden'}`}
-            aria-label="생성 코드"
+            aria-label="코드 패널"
           >
             <CodePanel
               code={code}
@@ -619,6 +634,7 @@ export default function GraphEditor() {
               validation={validation}
               onCopy={handleCopyCode}
               onFocusNodes={handleFocusNodes}
+              onApplyPython={handleApplyPython}
             />
           </section>
         </main>
