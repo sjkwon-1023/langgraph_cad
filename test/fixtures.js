@@ -33,6 +33,24 @@ export const reactLoop = {
   ],
 };
 
+/** START -> generator -> router -> { generator, END } */
+export const reflectionLoop = {
+  graphName: 'reflection_graph',
+  stateFields: 'draft: str',
+  nodes: [
+    node('rs', 'start', 'START'),
+    node('rg', 'agent', 'Generator'),
+    node('rc', 'conditional_edge', 'Evaluate Draft'),
+    node('re', 'end', 'END'),
+  ],
+  edges: [
+    edge('rs', 'rg'),
+    edge('rg', 'rc'),
+    edge('rc', 'rg', { branchKey: 'revise' }),
+    edge('rc', 're', { branchKey: 'accepted' }),
+  ],
+};
+
 export const minimal = {
   graphName: 'my_graph',
   stateFields: 'messages: list',

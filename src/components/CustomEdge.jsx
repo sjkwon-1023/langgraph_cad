@@ -3,15 +3,11 @@ import { EdgeLabelRenderer, useReactFlow, useStore } from 'reactflow';
 
 import { useMarkGraphChanged } from '../app/editorContext.js';
 import { useIsFlaggedEdge } from '../app/validationContext.js';
+import { initialControlPoint } from '../graph/edgeGeometry.js';
+import { buildAdjacency, isLoopbackBranch } from '../graph/topology.js';
 
 // How far the curve bows away from the straight source -> target line.
 const CURVATURE_STRENGTH = 0.25;
-const SELF_LOOP_OFFSET = 140;
-
-const initialControlPoint = (sourceX, sourceY, targetX, targetY, selfLoop) => ({
-  x: (sourceX + targetX) / 2 + (selfLoop ? SELF_LOOP_OFFSET : 0),
-  y: (sourceY + targetY) / 2,
-});
 
 function buildPath(sourceX, sourceY, targetX, targetY, control) {
   const dx = targetX - sourceX;
@@ -27,14 +23,24 @@ function buildPath(sourceX, sourceY, targetX, targetY, control) {
 const selectEdgeMeta = (source, target) => (store) => {
   const sourceNode = store.nodeInternals.get(source);
   const targetNode = store.nodeInternals.get(target);
+  const isBranch = sourceNode?.data?.type === 'conditional_edge';
+  const adjacency = buildAdjacency({
+    nodes: [...store.nodeInternals.values()],
+    edges: store.edges,
+  });
+  const isLoop = isBranch && isLoopbackBranch(source, target, adjacency);
   return {
-    isBranch: sourceNode?.data?.type === 'conditional_edge',
+    isBranch,
+    isLoop,
     fallbackKey:
-      targetNode?.data?.type === 'end' ? 'end' : targetNode?.data?.codeIdentifier || '',
+      targetNode?.data?.type === 'end'
+        ? 'end'
+        : isLoop ? '' : targetNode?.data?.codeIdentifier || '',
   };
 };
 
-const metaEqual = (a, b) => a.isBranch === b.isBranch && a.fallbackKey === b.fallbackKey;
+const metaEqual = (a, b) =>
+  a.isBranch === b.isBranch && a.isLoop === b.isLoop && a.fallbackKey === b.fallbackKey;
 
 export default function CustomEdge({ id, source, target, sourceX, sourceY, targetX, targetY, data, markerEnd, selected }) {
   const { setEdges, getViewport } = useReactFlow();
