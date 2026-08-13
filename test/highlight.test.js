@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { generatePython } from '../src/generator/generatePython.js';
-import { tokenizePython } from '../src/highlight/python.js';
+import { tokenizePython, tokenizePythonLines } from '../src/highlight/python.js';
 import { reactLoop } from './fixtures.js';
 
 const typeOf = (code, needle) =>
@@ -41,4 +41,25 @@ test('an unterminated string does not swallow the rest of the file', () => {
 test('empty input yields no tokens', () => {
   assert.deepEqual(tokenizePython(''), []);
   assert.deepEqual(tokenizePython(null), []);
+});
+
+test('line tokens preserve multiline strings, blank lines, and a trailing newline', () => {
+  const code = 'x = """first\nsecond"""\n\nvalue = 1\n';
+  const lines = tokenizePythonLines(code);
+
+  assert.deepEqual(lines.map(({ line }) => line), [1, 2, 3, 4, 5]);
+  assert.deepEqual(lines.map(({ text }) => text), [
+    'x = """first\n',
+    'second"""\n',
+    '\n',
+    'value = 1\n',
+    '',
+  ]);
+  assert.equal(lines.flatMap(({ tokens }) => tokens).map(({ value }) => value).join(''), code);
+  assert.equal(lines[1].tokens.some(({ type }) => type === 'string'), true);
+  assert.equal(lines.find(({ line }) => line === 4).text, 'value = 1\n');
+});
+
+test('empty input still has a 1-based empty display line', () => {
+  assert.deepEqual(tokenizePythonLines(''), [{ line: 1, text: '', tokens: [] }]);
 });

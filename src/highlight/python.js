@@ -61,6 +61,31 @@ export function tokenizePython(code) {
   return tokens;
 }
 
+/** 토큰 종류를 유지한 채 Python 소스를 1-based 행 모델로 나눈다. */
+export function tokenizePythonLines(code) {
+  const source = String(code ?? '');
+  const lines = [{ line: 1, text: '', tokens: [] }];
+
+  tokenizePython(source).forEach((token) => {
+    let start = 0;
+    for (let index = 0; index < token.value.length; index += 1) {
+      if (token.value[index] !== '\n') continue;
+      const value = token.value.slice(start, index + 1);
+      lines.at(-1).tokens.push({ ...token, value });
+      lines.at(-1).text += value;
+      lines.push({ line: lines.length + 1, text: '', tokens: [] });
+      start = index + 1;
+    }
+    if (start < token.value.length) {
+      const value = token.value.slice(start);
+      lines.at(-1).tokens.push({ ...token, value });
+      lines.at(-1).text += value;
+    }
+  });
+
+  return lines;
+}
+
 export const TOKEN_COLORS = {
   plain: '#e6e6e6',
   keyword: '#c792ea',
