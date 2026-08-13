@@ -1,127 +1,111 @@
-# English version
-[Click here](./README_en.md)
-
-# 웹페이지 링크
-
-https://langgraph-cad.netlify.app/
-
-## 사용 샘플
-
-[샘플 프로젝트](https://langgraph-cad.netlify.app/#%7B%22nodes%22%3A%5B%7B%22id%22%3A%22start-1%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A100%2C%22y%22%3A100%7D%2C%22data%22%3A%7B%22type%22%3A%22start%22%2C%22label%22%3A%22START%22%2C%22codeIdentifier%22%3A%22start%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A39%2C%22selected%22%3Afalse%7D%2C%7B%22id%22%3A%22agent-1747965831009%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A133%2C%22y%22%3A192%7D%2C%22data%22%3A%7B%22type%22%3A%22agent%22%2C%22label%22%3A%22Agent%22%2C%22obj%22%3A%22agent_function%22%2C%22codeIdentifier%22%3A%22Agent%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A56%2C%22selected%22%3Afalse%2C%22positionAbsolute%22%3A%7B%22x%22%3A133%2C%22y%22%3A192%7D%2C%22dragging%22%3Afalse%7D%2C%7B%22id%22%3A%22tool-1747965838956%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A-9%2C%22y%22%3A389%7D%2C%22data%22%3A%7B%22type%22%3A%22tool%22%2C%22label%22%3A%22Tool%22%2C%22obj%22%3A%22tool_function%22%2C%22codeIdentifier%22%3A%22Tool%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A56%2C%22selected%22%3Afalse%2C%22positionAbsolute%22%3A%7B%22x%22%3A-9%2C%22y%22%3A389%7D%2C%22dragging%22%3Afalse%7D%2C%7B%22id%22%3A%22conditional_edge-1747965840806%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A134%2C%22y%22%3A280%7D%2C%22data%22%3A%7B%22type%22%3A%22conditional_edge%22%2C%22label%22%3A%22Conditional%20Edge%22%2C%22obj%22%3A%22condition_function%22%2C%22codeIdentifier%22%3A%22Conditional_Edge%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A56%2C%22selected%22%3Afalse%2C%22positionAbsolute%22%3A%7B%22x%22%3A134%2C%22y%22%3A280%7D%2C%22dragging%22%3Afalse%7D%2C%7B%22id%22%3A%22end-1747965847750%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A156%2C%22y%22%3A608%7D%2C%22data%22%3A%7B%22type%22%3A%22end%22%2C%22label%22%3A%22END%22%2C%22obj%22%3A%22end_function%22%2C%22codeIdentifier%22%3A%22end%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A39%2C%22selected%22%3Afalse%2C%22positionAbsolute%22%3A%7B%22x%22%3A156%2C%22y%22%3A608%7D%2C%22dragging%22%3Afalse%7D%2C%7B%22id%22%3A%22agent-1747965961183%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A147%2C%22y%22%3A491%7D%2C%22data%22%3A%7B%22type%22%3A%22agent%22%2C%22label%22%3A%22Agent%22%2C%22obj%22%3A%22agent_function%22%2C%22codeIdentifier%22%3A%22Agent_1%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A56%2C%22selected%22%3Afalse%2C%22positionAbsolute%22%3A%7B%22x%22%3A147%2C%22y%22%3A491%7D%2C%22dragging%22%3Afalse%7D%5D%2C%22edges%22%3A%5B%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%22none%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22start-1%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22agent-1747965831009%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-start-1-agent-1747965831009%22%2C%22selected%22%3Afalse%7D%2C%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%22none%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22agent-1747965831009%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22conditional_edge-1747965840806%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-agent-1747965831009-conditional_edge-1747965840806%22%2C%22selected%22%3Afalse%7D%2C%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%225%2C5%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22conditional_edge-1747965840806%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22tool-1747965838956%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-conditional_edge-1747965840806-tool-1747965838956%22%2C%22selected%22%3Afalse%7D%2C%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%22none%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22tool-1747965838956%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22agent-1747965831009%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%22controlPoint%22%3A%7B%22x%22%3A-94.5%2C%22y%22%3A231%7D%2C%22controlPointDragged%22%3Atrue%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-tool-1747965838956-agent-1747965831009%22%2C%22selected%22%3Afalse%7D%2C%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%225%2C5%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22conditional_edge-1747965840806%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22agent-1747965961183%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-conditional_edge-1747965840806-agent-1747965961183%22%2C%22selected%22%3Afalse%7D%2C%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%22none%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22agent-1747965961183%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22end-1747965847750%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-agent-1747965961183-end-1747965847750%22%2C%22selected%22%3Afalse%7D%5D%2C%22entryPointCodeId%22%3Anull%2C%22graphName%22%3A%22my_graph%22%7D)
-
 # LangGraph CAD
 
-LangGraph CAD는 LangGraph 워크플로우를 시각적으로 설계할 수 있는 웹 기반 도구입니다. React와 ReactFlow를 사용하여 구현되었으며, 직관적인 드래그 앤 드롭 인터페이스를 제공합니다.
+[English](./README_en.md)
+
+LangGraph CAD는 LangGraph 워크플로를 캔버스에서 설계하고, 바로 사용할 수 있는 Python 모듈로 변환하는 웹 편집기입니다.
+
+- 배포 페이지: https://langgraph-cad.netlify.app/
+- 소스 저장소: https://github.com/sjkwon1023/langgraph_cad
+
+## 생성 코드 계약
+
+생성 결과는 `from langgraph.graph import ...`를 사용하고 State 타입, 노드·라우터 함수, 그래프 배선, `compile()` 호출을 모두 포함하는 완전한 Python 모듈입니다. 코드를 복사한 뒤 `TODO`로 표시된 노드와 라우터 함수 본문만 실제 로직으로 바꾸면 됩니다. 그래프 배선은 별도로 고치지 않아도 컴파일됩니다.
+
+코드를 실행할 환경에는 LangGraph가 필요합니다.
+
+```bash
+pip install langgraph
+```
 
 ## 주요 기능
 
-- 🎨 직관적인 드래그 앤 드롭 인터페이스
-- 🔄 실시간 코드 생성
-- 📝 노드 이름 편집
-- 🔗 조건부 엣지 지원
-- 💾 URL을 통한 워크플로우 저장/공유
-- 📋 메모 기능 추가
-- 📋 생성된 코드 클립보드 복사
+- 팔레트의 노드를 클릭해 화면 중앙에 추가하거나 캔버스로 드래그 앤 드롭
+- Agent, Tool, Conditional Edge, Text의 표시 이름 편집(생성 코드 식별자는 라벨에서 자동 파생)
+- `State 필드`에 한 줄당 `이름: Python 타입` 형식으로 공유 state 정의
+- Conditional Edge에서 나가는 엣지의 분기 키를 캔버스에서 직접 편집
+- 오류와 경고를 실시간 표시하고, 노드와 연결된 항목을 클릭해 관련 노드로 이동
+- 생성된 Python 코드를 실시간 확인하고 클립보드로 복사
+- URL 자동 저장·공유 및 버전이 있는 JSON 내보내기·불러오기
+- 선택한 엣지의 곡선 조절 및 기본 모양으로 초기화
+- 좁은 화면에서 Editor/Code 탭과 노드 팔레트 drawer 제공
 
-## 로컬 설치 방법
-로컬에 설치하여 사용하고 싶으면 아래 방법을 사용하면 됩니다.
+## 로컬 실행
 
-1. 저장소 클론:
 ```bash
 git clone https://github.com/sjkwon1023/langgraph_cad.git
 cd langgraph_cad
-```
-
-2. 의존성 설치:
-```bash
 npm install
+npm start
 ```
 
-3. 개발 서버 실행:
+검증 명령은 다음과 같습니다.
+
 ```bash
-npm start
+npm test
+npm run build
+```
+
+`npm test`의 Python 문법 검사는 Python 3가 없으면 건너뛰고, 실제 LangGraph 그래프 생성·실행 검사는
+테스트 인터프리터에 `langgraph`가 없으면 건너뜁니다. 두 실행 검사를 포함하려면 `langgraph`가 설치된
+Python을 `LANGGRAPH_CAD_PYTHON`으로 지정하세요.
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-test.txt
+LANGGRAPH_CAD_PYTHON=.venv/bin/python npm test
 ```
 
 ## 사용 방법
 
-### 기본 조작
+### 노드와 엣지
 
-- **노드 선택**: 노드 클릭
-- **다중 선택**: Shift + 클릭
-- **노드 이동**: 노드 드래그
-- **노드 삭제**: 노드 선택 후 Delete 또는 Backspace
-- **노드 이름 편집**: 노드 선택 후 연필 아이콘 클릭
+1. 왼쪽 팔레트에서 START, END, Agent, Tool, Conditional Edge, Text 노드를 클릭하거나 캔버스로 끌어다 놓습니다.
+2. 노드의 source 핸들에서 target 핸들로 드래그해 연결합니다. 같은 노드로 돌아오는 셀프 루프도 만들 수 있습니다.
+3. Agent, Tool, Conditional Edge, Text 노드를 선택한 뒤 연필 버튼으로 이름을 편집합니다. START와 END는 이름을 편집할 수 없습니다. Agent, Tool, Conditional Edge는 라벨을 저장할 때 Python 코드 식별자도 함께 자동 관리합니다.
+4. Conditional Edge에서 나가는 점선 엣지의 라벨을 클릭해 라우터가 반환할 분기 키를 편집합니다.
+5. 노드나 엣지를 선택하고 Delete 또는 Backspace를 누르면 삭제됩니다. Shift를 누른 채 여러 항목을 선택할 수 있습니다.
+6. Editor 뷰에서는 좁은 화면에서 한 손가락 드래그로 캔버스를 이동합니다. 데스크톱에서는 왼쪽 드래그로 박스 선택하고 오른쪽 드래그로 캔버스를 이동합니다. 휠로 확대·축소할 수 있습니다.
 
-### 노드 추가
+START와 END 노드는 각각 하나만 둘 수 있습니다. START 노드는 여러 outgoing edge를 가질 수 있으므로 병렬 진입 경로를 표현할 수 있습니다. Text 노드는 메모 전용이며 생성 코드에는 포함되지 않습니다.
 
-왼쪽 패널에서 원하는 노드 타입을 드래그하여 워크스페이스에 추가할 수 있습니다:
+### State와 코드 생성
 
-- **START**: 워크플로우의 시작점
-- **END**: 워크플로우의 종료점
-- **Agent**: 에이전트 노드
-- **Tool**: 도구 노드
-- **Conditional Edge**: 조건부 분기 엣지
-- **Text**: 메모용 텍스트 노드
+오른쪽 코드 패널에서 Graph Name과 State 필드를 편집합니다. State 필드는 다음처럼 한 줄에 하나씩 입력합니다.
 
-### 엣지 생성
+```text
+messages: list
+user_id: str
+retry_count: int
+```
 
-1. 노드의 연결점(핸들)을 드래그하여 다른 노드의 핸들에 연결
-2. 엣지 선택 후 컨트롤 포인트를 드래그하여 경로 조정
-3. 조건부 엣지의 경우 점선으로 표시되며, 코드 생성 시 조건부 분기로 처리
+State 타입에서 `Annotated`, `Any`, `Optional`, `Union`, `Sequence`, `Literal`, `Callable`, `Iterable`,
+`Mapping`, `List`, `Dict`, `Tuple`, `Set`, `add_messages`, `operator`를 사용하면 필요한 import가 자동으로
+추가됩니다. `list`, `dict`, `str`, `int` 같은 Python 빌트인도 그대로 사용할 수 있습니다. 그 밖의 심볼은
+경고로 표시되며, 코드를 복사한 뒤 생성 코드 상단에 import를 직접 추가해야 합니다.
 
-### 코드 생성
+오류는 코드 복사를 막고, 경고는 그래프를 점검하도록 안내합니다. 노드와 연결된 메시지만 클릭할 수
+있으며, 클릭하면 관련 노드가 선택되고 화면에 맞춰집니다. 경고에는 도달할 수 없는 노드, END로 가는
+경로가 없는 노드, 고립된 노드 등이 포함될 수 있습니다.
 
-1. 오른쪽 패널에서 생성된 Python 코드 확인
-2. "Copy Code" 버튼을 클릭하여 코드 복사
-3. Graph Name 입력 필드에서 그래프 이름 변경 가능
+### 저장, 공유, 초기화
 
-### 워크플로우 저장
+- 편집 상태는 URL hash에 자동 저장됩니다. `URL 복사`로 현재 그래프를 공유할 수 있습니다.
+- 큰 그래프는 긴 URL 대신 `JSON 내보내기`를 사용하고, `JSON 불러오기`로 다시 열 수 있습니다.
+- `전체 초기화`는 확인 후 START 노드 하나가 있는 초기 상태로 되돌립니다.
+- URL 또는 JSON 데이터가 유효하지 않으면 가져오지 않고 오류 메시지를 표시합니다.
 
-- 현재 워크플로우 상태는 자동으로 URL에 저장됩니다
-- "Copy URL" 버튼을 클릭하여 현재 상태의 URL을 복사할 수 있습니다
-- 저장된 URL을 공유하면 다른 사용자도 동일한 워크플로우를 불러올 수 있습니다
+## 알려진 한계와 향후 과제
 
-## 노드 타입 설명
-
-### START
-- 워크플로우의 시작점
-- 하나의 START 노드만 존재 가능
-- 항상 하나의 출력 엣지만 가질 수 있음
-
-### END
-- 워크플로우의 종료점
-- 하나의 END 노드만 존재 가능
-
-### Agent
-- 에이전트 노드
-- 워크플로우의 주요 처리 단계
-- 여러 입력과 출력 엣지 가능
-
-### Tool
-- 도구 노드
-- 특정 기능을 수행하는 도구
-- 여러 입력과 출력 엣지 가능
-
-### Conditional Edge
-- 조건부 분기 엣지
-- 조건함수를 나타냄
-- 입력 노드의 결과에 따라 다른 경로로 분기
-
-### Text
-- 설명용 텍스트 노드
-- 워크플로우에 설명 추가
-- 코드 생성에 포함되지 않음
-
-## 주의사항
-
-1. START와 END 노드는 각각 하나만 존재할 수 있습니다.
-2. Text 노드는 코드 생성에 포함되지 않습니다.
-3. 워크플로우는 항상 START 노드에서 시작하여 END 노드에서 종료되어야 합니다.
-4. Conditional Edge는 조건함수를 나타내는 부분입니다. 상위 노드와 하위 노드를 연결하는 역할만 합니다. 상위노드, 하위노드가 없으면 코드가 생성되지 않습니다.
+- 키보드만으로 엣지를 연결하는 기능은 아직 없습니다.
+- 모바일 노드 팔레트 drawer는 아직 focus trap을 제공하지 않습니다.
+- undo/redo와 기존 LangGraph Python 코드를 그래프로 역변환하는 기능은 지원하지 않습니다.
+- `ToolNode`, `tools_condition` 같은 prebuilt 매핑과 checkpointer/interrupt 기반 HITL UI는 제공하지 않습니다.
+- 템플릿·예제 그래프 로더, `Send` API, subgraph 노드 타입은 아직 없습니다.
+- URL payload는 압축하지 않습니다. 큰 그래프는 JSON 파일로 공유하세요.
 
 ## 라이선스
 
-MIT License
+[MIT](./LICENSE) © Sejin Kwon
 
 ## 연락처
 

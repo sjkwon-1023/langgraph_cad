@@ -1,127 +1,115 @@
-# Webpage Link
-
-https://langgraph-cad.netlify.app/
-
-## Usage Sample
-
-[Sample Project](https://langgraph-cad.netlify.app/#%7B%22nodes%22%3A%5B%7B%22id%22%3A%22start-1%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A100%2C%22y%22%3A100%7D%2C%22data%22%3A%7B%22type%22%3A%22start%22%2C%22label%22%3A%22START%22%2C%22codeIdentifier%22%3A%22start%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A39%2C%22selected%22%3Afalse%7D%2C%7B%22id%22%3A%22agent-1747965831009%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A133%2C%22y%22%3A192%7D%2C%22data%22%3A%7B%22type%22%3A%22agent%22%2C%22label%22%3A%22Agent%22%2C%22obj%22%3A%22agent_function%22%2C%22codeIdentifier%22%3A%22Agent%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A56%2C%22selected%22%3Afalse%2C%22positionAbsolute%22%3A%7B%22x%22%3A133%2C%22y%22%3A192%7D%2C%22dragging%22%3Afalse%7D%2C%7B%22id%22%3A%22tool-1747965838956%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A-9%2C%22y%22%3A389%7D%2C%22data%22%3A%7B%22type%22%3A%22tool%22%2C%22label%22%3A%22Tool%22%2C%22obj%22%3A%22tool_function%22%2C%22codeIdentifier%22%3A%22Tool%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A56%2C%22selected%22%3Afalse%2C%22positionAbsolute%22%3A%7B%22x%22%3A-9%2C%22y%22%3A389%7D%2C%22dragging%22%3Afalse%7D%2C%7B%22id%22%3A%22conditional_edge-1747965840806%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A134%2C%22y%22%3A280%7D%2C%22data%22%3A%7B%22type%22%3A%22conditional_edge%22%2C%22label%22%3A%22Conditional%20Edge%22%2C%22obj%22%3A%22condition_function%22%2C%22codeIdentifier%22%3A%22Conditional_Edge%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A56%2C%22selected%22%3Afalse%2C%22positionAbsolute%22%3A%7B%22x%22%3A134%2C%22y%22%3A280%7D%2C%22dragging%22%3Afalse%7D%2C%7B%22id%22%3A%22end-1747965847750%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A156%2C%22y%22%3A608%7D%2C%22data%22%3A%7B%22type%22%3A%22end%22%2C%22label%22%3A%22END%22%2C%22obj%22%3A%22end_function%22%2C%22codeIdentifier%22%3A%22end%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A39%2C%22selected%22%3Afalse%2C%22positionAbsolute%22%3A%7B%22x%22%3A156%2C%22y%22%3A608%7D%2C%22dragging%22%3Afalse%7D%2C%7B%22id%22%3A%22agent-1747965961183%22%2C%22type%22%3A%22custom%22%2C%22position%22%3A%7B%22x%22%3A147%2C%22y%22%3A491%7D%2C%22data%22%3A%7B%22type%22%3A%22agent%22%2C%22label%22%3A%22Agent%22%2C%22obj%22%3A%22agent_function%22%2C%22codeIdentifier%22%3A%22Agent_1%22%7D%2C%22zIndex%22%3A10%2C%22width%22%3A212%2C%22height%22%3A56%2C%22selected%22%3Afalse%2C%22positionAbsolute%22%3A%7B%22x%22%3A147%2C%22y%22%3A491%7D%2C%22dragging%22%3Afalse%7D%5D%2C%22edges%22%3A%5B%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%22none%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22start-1%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22agent-1747965831009%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-start-1-agent-1747965831009%22%2C%22selected%22%3Afalse%7D%2C%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%22none%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22agent-1747965831009%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22conditional_edge-1747965840806%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-agent-1747965831009-conditional_edge-1747965840806%22%2C%22selected%22%3Afalse%7D%2C%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%225%2C5%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22conditional_edge-1747965840806%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22tool-1747965838956%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-conditional_edge-1747965840806-tool-1747965838956%22%2C%22selected%22%3Afalse%7D%2C%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%22none%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22tool-1747965838956%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22agent-1747965831009%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%22controlPoint%22%3A%7B%22x%22%3A-94.5%2C%22y%22%3A231%7D%2C%22controlPointDragged%22%3Atrue%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-tool-1747965838956-agent-1747965831009%22%2C%22selected%22%3Afalse%7D%2C%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%225%2C5%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22conditional_edge-1747965840806%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22agent-1747965961183%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-conditional_edge-1747965840806-agent-1747965961183%22%2C%22selected%22%3Afalse%7D%2C%7B%22style%22%3A%7B%22stroke%22%3A%22%23555%22%2C%22strokeWidth%22%3A1.5%2C%22strokeDasharray%22%3A%22none%22%7D%2C%22markerEnd%22%3A%7B%22type%22%3A%22arrowclosed%22%2C%22color%22%3A%22%23555%22%2C%22width%22%3A15%2C%22height%22%3A15%7D%2C%22source%22%3A%22agent-1747965961183%22%2C%22sourceHandle%22%3Anull%2C%22target%22%3A%22end-1747965847750%22%2C%22targetHandle%22%3Anull%2C%22type%22%3A%22customEdge%22%2C%22data%22%3A%7B%7D%2C%22zIndex%22%3A5%2C%22id%22%3A%22reactflow__edge-agent-1747965961183-end-1747965847750%22%2C%22selected%22%3Afalse%7D%5D%2C%22entryPointCodeId%22%3Anull%2C%22graphName%22%3A%22my_graph%22%7D)
-
 # LangGraph CAD
 
-LangGraph CAD is a web-based tool for visually designing LangGraph workflows. Built with React and ReactFlow, it provides an intuitive drag-and-drop interface.
+[한국어](./README.md)
 
-## Key Features
+LangGraph CAD is a visual editor for designing LangGraph workflows on a canvas and exporting them as ready-to-use Python modules.
 
-- 🎨 Intuitive drag-and-drop interface
-- 🔄 Real-time code generation
-- 📝 Node name editing
-- 🔗 Conditional edge support
-- 💾 Workflow saving/sharing via URL
-- 📋 Note-taking functionality
-- 📋 Generated code clipboard copy
+- Live app: https://langgraph-cad.netlify.app/
+- Source: https://github.com/sjkwon1023/langgraph_cad
 
-## Local installation
-U can install your local pc if you want to
+## Generated-code contract
 
-1. Clone the repository:
+The generated output is a complete Python module. It uses `from langgraph.graph import ...` and includes the State type, node and router functions, graph wiring, and the `compile()` call. After copying it, replace only the node and router function bodies marked `TODO` with your application logic. The graph wiring compiles without additional edits.
+
+Install LangGraph in the environment where you use the generated module:
+
+```bash
+pip install langgraph
+```
+
+## Features
+
+- Add nodes at the viewport center with a palette click or drag them onto the canvas
+- Edit display labels for Agent, Tool, Conditional Edge, and Text nodes (code identifiers are derived automatically)
+- Define shared state in `State fields`, one `name: Python type` entry per line
+- Edit branch keys directly on edges leaving a Conditional Edge node
+- See validation errors and warnings in real time and focus nodes from messages linked to them
+- Preview generated Python code and copy it to the clipboard
+- Autosave and share through the URL, or export and import versioned JSON
+- Adjust an edge curve and reset it to its default shape
+- Use Editor/Code tabs and a palette drawer on narrow screens
+
+## Run locally
+
 ```bash
 git clone https://github.com/sjkwon1023/langgraph_cad.git
 cd langgraph_cad
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Start the development server:
-```bash
 npm start
 ```
 
-## Usage Guide
+Run the checks with:
 
-### Basic Controls
+```bash
+npm test
+npm run build
+```
 
-- **Pan**: Right Click
-- **Select Node**: Left click on a node
-- **Multiple Selection**: Shift + Left Click
-- **Move Node**: Drag the node
-- **Delete Node**: Select node and press Delete or Backspace
-- **Edit Node Name**: Click the pencil icon after selecting a node
+The Python syntax check in `npm test` is skipped when Python 3 is unavailable. The real LangGraph
+build and execution checks are skipped when `langgraph` is unavailable to the test interpreter.
+To include both execution checks, point `LANGGRAPH_CAD_PYTHON` at a Python installation that has
+the test requirements installed:
 
-### Adding Nodes
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-test.txt
+LANGGRAPH_CAD_PYTHON=.venv/bin/python npm test
+```
 
-Drag desired node types from the left panel to the workspace:
+## Usage
 
-- **START**: Workflow starting point
-- **END**: Workflow ending point
-- **Agent**: Agent node
-- **Tool**: Tool node
-- **Conditional Edge**: Conditional branching edge
-- **Text**: Note-taking text node
+### Nodes and edges
 
-### Creating Edges
+1. Click START, END, Agent, Tool, Conditional Edge, or Text in the left palette, or drag it onto the canvas.
+2. Drag from a source handle to a target handle to connect nodes. Self-loops back to the same node are supported.
+3. Select an Agent, Tool, Conditional Edge, or Text node and use its pencil button to edit the name. START and END are not editable. Saving a label for Agent, Tool, or Conditional Edge also updates its derived Python identifier.
+4. Click the label on a dashed edge leaving a Conditional Edge node to edit the branch key returned by its router.
+5. Select nodes or edges and press Delete or Backspace to remove them. Hold Shift for multi-selection.
+6. In the Editor view, drag with one finger to pan the canvas on narrow screens. On desktop, left-drag to box-select and right-drag to pan. Use the wheel to zoom.
 
-1. Drag from a node's connection point (handle) to another node's handle
-2. Adjust the path by dragging the control points after selecting an edge
-3. Conditional edges are displayed as dashed lines and processed as conditional branches in code generation
+Only one START and one END node can exist. START may have multiple outgoing edges, which represents parallel entry paths. Text is a note-only node and is omitted from generated code.
 
-### Code Generation
+### State and code generation
 
-1. View the generated Python code in the right panel
-2. Click "Copy Code" to copy the code
-3. Change the graph name in the Graph Name input field
+Edit Graph Name and State fields in the code panel. Enter one state field per line:
 
-### Workflow Saving
+```text
+messages: list
+user_id: str
+retry_count: int
+```
 
-- Current workflow state is automatically saved in the URL
-- Click "Copy URL" to copy the current state's URL
-- Share the saved URL to let others load the same workflow
+State annotations automatically import `Annotated`, `Any`, `Optional`, `Union`, `Sequence`,
+`Literal`, `Callable`, `Iterable`, `Mapping`, `List`, `Dict`, `Tuple`, `Set`, `add_messages`, and
+`operator` when referenced. Python built-ins such as `list`, `dict`, `str`, and `int` work as-is.
+Other symbols produce a warning; after copying the code, add their imports manually at the top of
+the generated module.
 
-## Node Type Descriptions
+Errors block code copying, while warnings point out graph structures worth reviewing. Only
+messages linked to nodes are clickable; clicking one selects and fits those nodes. Warnings can
+include unreachable nodes, nodes without a path to END, and isolated nodes.
 
-### START
-- Workflow starting point
-- Only one START node allowed
-- Can have only one output edge
+### Save, share, and reset
 
-### END
-- Workflow ending point
-- Only one END node allowed
+- The editor automatically stores its state in the URL hash. Use `URL 복사` (Copy URL) to share the current graph.
+- For large graphs, use `JSON 내보내기` (Export JSON) instead of a long URL, then restore it with `JSON 불러오기` (Import JSON).
+- `전체 초기화` (Reset All) asks for confirmation and restores the initial graph with one START node.
+- Invalid URL or JSON data is rejected and reported without replacing the current graph.
 
-### Agent
-- Agent node
-- Main processing step in the workflow
-- Can have multiple input and output edges
+## Known limitations and roadmap
 
-### Tool
-- Tool node
-- Performs specific functions
-- Can have multiple input and output edges
-
-### Conditional Edge
-- Conditional branching node
-- This Node is displaying "conditional function"
-- Branches to different paths based on input node results
-- Displayed as dashed lines and processed as conditional edge in code generation
-
-### Text
-- It is a memo
-- Not included in code generation
-
-## Important Notes
-
-1. Only one START and one END node can exist.
-2. Text nodes are not included in code generation.
-3. Workflow must always start from a START node and end at an END node.
-4. Conditional edges must be connected through a Conditional Edge node.
+- Connecting edges entirely from the keyboard is not yet supported.
+- The mobile palette drawer does not yet provide a focus trap.
+- Undo/redo and reverse-importing existing LangGraph Python code are not supported.
+- Prebuilt mappings such as `ToolNode` and `tools_condition`, plus checkpointer/interrupt HITL UI, are not included.
+- There is no template/example loader, `Send` API support, or subgraph node type yet.
+- URL payloads are not compressed. Share large graphs as JSON files.
 
 ## License
 
-MIT License
+[MIT](./LICENSE) © Sejin Kwon
 
 ## Contact
 
 - Email: sjkwon1023@gmail.com
-- GitHub: [@sjkwon1023](https://github.com/sjkwon1023) 
+- GitHub: [@sjkwon1023](https://github.com/sjkwon1023)

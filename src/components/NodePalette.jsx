@@ -1,0 +1,117 @@
+import React, { useRef } from 'react';
+
+import { NODE_TYPES, NODE_TYPE_KEYS } from '../graph/nodeTypes.js';
+
+const actionStyle = (color) => ({
+  padding: '10px 15px',
+  borderRadius: '6px',
+  border: `1px solid ${color}`,
+  background: '#fff',
+  color,
+  cursor: 'pointer',
+  fontSize: '14px',
+  width: '100%',
+  transition: 'all 0.2s ease',
+});
+
+function ActionButton({ color, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={actionStyle(color)}
+      onMouseEnter={(event) => {
+        event.currentTarget.style.background = color;
+        event.currentTarget.style.color = '#fff';
+      }}
+      onMouseLeave={(event) => {
+        event.currentTarget.style.background = '#fff';
+        event.currentTarget.style.color = color;
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+export default function NodePalette({ onAddNode, onNodeDragStart, onReset, onCopyUrl, onExport, onImport, takenTypes }) {
+  const fileInput = useRef(null);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', padding: '15px' }}>
+      <h2 style={{ marginTop: 0, marginBottom: '6px', color: '#333', fontSize: '18px' }}>노드 추가</h2>
+      <p style={{ margin: '0 0 15px', fontSize: '12px', color: '#777' }}>
+        캔버스로 끌어다 놓거나, 클릭하면 화면 중앙에 추가됩니다.
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {NODE_TYPE_KEYS.map((key) => {
+          const nodeType = NODE_TYPES[key];
+          const disabled = Boolean(nodeType.singleton && takenTypes.has(key));
+          return (
+            <button
+              key={key}
+              type="button"
+              draggable={!disabled}
+              disabled={disabled}
+              title={disabled ? `${nodeType.label} 노드는 이미 있습니다.` : nodeType.hint}
+              onDragStart={(event) => {
+                event.dataTransfer.setData('application/reactflow', key);
+                event.dataTransfer.effectAllowed = 'move';
+                onNodeDragStart();
+              }}
+              onClick={() => onAddNode(key)}
+              style={{
+                padding: '12px 15px',
+                border: '1px solid #ddd',
+                borderRadius: '6px',
+                background: disabled ? '#f1f1f1' : '#fff',
+                cursor: disabled ? 'not-allowed' : 'grab',
+                textAlign: 'center',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: disabled ? '#aaa' : '#444',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              }}
+            >
+              {nodeType.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <hr style={{ margin: '25px 0', border: 0, borderTop: '1px solid #eee' }} />
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <ActionButton color="#28a745" onClick={onCopyUrl}>URL 복사</ActionButton>
+        <ActionButton color="#0d6efd" onClick={onExport}>JSON 내보내기</ActionButton>
+        <ActionButton color="#0d6efd" onClick={() => fileInput.current?.click()}>JSON 불러오기</ActionButton>
+        <ActionButton color="#dc3545" onClick={onReset}>전체 초기화</ActionButton>
+        <ActionButton
+          color="#6c757d"
+          onClick={() => window.open('https://github.com/sjkwon1023/langgraph_cad/tree/main', '_blank', 'noopener')}
+        >
+          Readme
+        </ActionButton>
+        <input
+          ref={fileInput}
+          type="file"
+          accept="application/json,.json"
+          aria-label="그래프 JSON 파일 선택"
+          style={{ display: 'none' }}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) onImport(file);
+            event.target.value = '';
+          }}
+        />
+      </div>
+
+      <div style={{ marginTop: 'auto', paddingTop: '20px', fontSize: '12px', color: '#bbb', lineHeight: 1.4 }}>
+        Sejin Kwon
+        <br />
+        sjkwon1023@gmail.com
+      </div>
+    </div>
+  );
+}
