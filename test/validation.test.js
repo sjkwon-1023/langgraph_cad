@@ -67,6 +67,37 @@ test('duplicate branch keys are an error because Python would silently drop one'
   assert.ok(ids(result).includes('duplicate-branch-key'));
 });
 
+test('an implicit loopback branch key is an error and flags the branch edge', () => {
+  const nodes = [
+    node('s', 'start', 'START'),
+    node('a', 'agent', 'Writer'),
+    node('c', 'conditional_edge', 'Review'),
+    node('e', 'end', 'END'),
+  ];
+  const loopEdge = edge('c', 'a');
+  const result = check({
+    nodes,
+    edges: [edge('s', 'a'), edge('a', 'c'), loopEdge, edge('c', 'e')],
+  });
+
+  assert.ok(ids(result).includes('missing-loop-branch-key'));
+  assert.ok(result.flaggedEdgeIds.has(loopEdge.id));
+  assert.equal(result.hasErrors, true);
+});
+
+test('loop-safety State annotations do not produce unknown-symbol warnings', () => {
+  const result = check({
+    ...minimal,
+    stateFields: [
+      'messages: Annotated[list[AnyMessage], add_messages]',
+      'remaining_steps: RemainingSteps',
+      'is_last_step: IsLastStep',
+      'result: Overwrite',
+    ].join('\n'),
+  });
+  assert.ok(!ids(result).includes('unknown-state-annotation-symbol'));
+});
+
 test('reserved LangGraph node names are rejected', () => {
   const bad = node('a', 'agent', 'A');
   bad.data.codeIdentifier = '__end__';

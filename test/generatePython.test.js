@@ -3,10 +3,11 @@ import test from 'node:test';
 
 import {
   analyzeStateFieldAnnotations,
+  buildPlan,
   generatePython,
   parseStateFields,
 } from '../src/generator/generatePython.js';
-import { edge, minimal, node, reactLoop } from './fixtures.js';
+import { edge, minimal, node, reactLoop, reflectionLoop } from './fixtures.js';
 
 test('the canonical START -> Agent -> END graph renders a complete module', () => {
   assert.equal(
@@ -74,6 +75,69 @@ test('conditional path_map entries are comma separated', () => {
     code,
     /my_graph\.add_conditional_edges\(\n {4}"Agent",\n {4}should_continue,\n {4}\{\n {8}"continue": "Tool",\n {8}"finish": END,\n {4}\},\n\)/,
   );
+});
+
+test('router stubs prefer END and document loop branches', () => {
+  const code = generatePython(reactLoop);
+  assert.match(code, /루프 분기 continue -> Tool: 종료 조건을 반드시 구현하세요/);
+  assert.match(code, /def should_continue[\s\S]*?return "finish"/);
+
+  const reflectionCode = generatePython(reflectionLoop);
+  assert.match(reflectionCode, /루프 분기 revise -> Generator/);
+  assert.match(reflectionCode, /def evaluate_draft[\s\S]*?return "accepted"/);
+});
+
+test('router stubs prefer a non-loop branch and otherwise preserve first-branch fallback', () => {
+  const nodes = [
+    node('s', 'start', 'START'),
+    node('a', 'agent', 'A'),
+    node('b', 'agent', 'B'),
+    node('c', 'conditional_edge', 'Route'),
+  ];
+  const safeForward = generatePython({
+    graphName: 'g',
+    nodes,
+    edges: [
+      edge('s', 'a'),
+      edge('a', 'c'),
+      edge('c', 'a', { branchKey: 'again' }),
+      edge('c', 'b', { branchKey: 'next' }),
+    ],
+  });
+  assert.match(safeForward, /def route[\s\S]*?return "next"/);
+
+  const allLoops = generatePython({
+    graphName: 'g',
+    nodes,
+    edges: [
+      edge('s', 'a'),
+      edge('a', 'c'),
+      edge('b', 'c'),
+      edge('c', 'a', { branchKey: 'first' }),
+      edge('c', 'b', { branchKey: 'second' }),
+    ],
+  });
+  assert.match(allLoops, /def route[\s\S]*?return "first"/);
+});
+
+test('implicit loop keys stay syntactically safe but do not use the target name', () => {
+  const input = {
+    graphName: 'g',
+    nodes: [
+      node('s', 'start', 'START'),
+      node('a', 'agent', 'Writer'),
+      node('c', 'conditional_edge', 'Review'),
+      node('e', 'end', 'END'),
+    ],
+    edges: [edge('s', 'a'), edge('a', 'c'), edge('c', 'a'), edge('c', 'e')],
+  };
+  const loopBranch = buildPlan(input).routers[0].branches[0];
+  const code = generatePython(input);
+
+  assert.equal(loopBranch.isLoop, true);
+  assert.equal(loopBranch.key, '');
+  assert.match(code, /"": "Writer",/);
+  assert.doesNotMatch(code, /"Writer": "Writer",/);
 });
 
 test('branch keys fall back to the target name, or "end" for the END node', () => {
@@ -235,7 +299,10 @@ test('state annotation symbols resolve to deterministic imports', () => {
         'Tuple',
         'Union',
       ],
+      langchainMessageNames: [],
       langgraphMessageNames: ['add_messages'],
+      langgraphManagedNames: [],
+      langgraphTypeNames: [],
       moduleNames: ['operator'],
       unknownNames: [],
     },
@@ -248,6 +315,51 @@ test('state annotation symbols resolve to deterministic imports', () => {
   assert.match(code, /^import operator$/m);
   assert.match(code, /^from typing import Annotated, TypedDict$/m);
   assert.match(code, /^from langgraph\.graph\.message import add_messages$/m);
+});
+
+test('LangGraph loop-safety annotations resolve to deterministic module imports', () => {
+  const fields = parseStateFields([
+    'messages: Annotated[list[AnyMessage], add_messages]',
+    'remaining_steps: RemainingSteps',
+    'is_last_step: IsLastStep',
+    'result: Overwrite',
+  ].join('\n')).fields;
+  const analysis = analyzeStateFieldAnnotations(fields);
+  const code = generatePython({ ...minimal, stateFields: fields.map((field) => `${field.name}: ${field.annotation}`).join('\n') });
+
+  assert.deepEqual(analysis.langchainMessageNames, ['AnyMessage']);
+  assert.deepEqual(analysis.langgraphManagedNames, ['IsLastStep', 'RemainingSteps']);
+  assert.deepEqual(analysis.langgraphTypeNames, ['Overwrite']);
+  assert.deepEqual(analysis.unknownNames, []);
+  assert.match(code, /^from langchain_core\.messages import AnyMessage$/m);
+  assert.match(code, /^from langgraph\.managed import IsLastStep, RemainingSteps$/m);
+  assert.match(code, /^from langgraph\.types import Overwrite$/m);
+});
+
+test('only cyclic graphs include an invoke example with recursion_limit config', () => {
+  assert.doesNotMatch(generatePython(minimal), /^if __name__ == "__main__":$/m);
+
+  const builtins = generatePython({
+    ...reflectionLoop,
+    stateFields: [
+      'items: list[str]',
+      'lookup: dict[str, int]',
+      'name: str',
+      'count: int',
+      'score: float',
+      'ready: bool',
+      'seen: set[str]',
+      'pair: tuple[int, int]',
+      'history: Annotated[list[str], operator.add]',
+    ].join('\n'),
+  });
+  assert.match(builtins, /^if __name__ == "__main__":$/m);
+  assert.match(builtins, /"items": \[\],[\s\S]*"lookup": \{\},[\s\S]*"ready": False/);
+  assert.match(builtins, /"history": \[\],/);
+  assert.match(builtins, /invoke\(initial_state, config=\{"recursion_limit": 25\}\)/);
+
+  const unknown = generatePython({ ...reflectionLoop, stateFields: 'custom: CustomState' });
+  assert.match(unknown, /TODO: 실제 State 필드에 맞는 초기값을 입력하세요\.\n {4}initial_state = \{\}/);
 });
 
 test('unknown state annotation names are reported without treating quoted forward references as imports', () => {

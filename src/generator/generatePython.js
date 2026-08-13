@@ -7,6 +7,11 @@ import {
   toToken,
 } from '../graph/identifiers.js';
 import { isCodeNode } from '../graph/nodeTypes.js';
+import {
+  buildAdjacency,
+  hasDirectedCycle,
+  isLoopbackBranch,
+} from '../graph/topology.js';
 
 export const DEFAULT_GRAPH_NAME = 'my_graph';
 export const DEFAULT_STATE_FIELDS = 'messages: list';
@@ -29,7 +34,11 @@ const STATE_ANNOTATION_IMPORTS = Object.freeze({
   Set: { kind: 'from', module: 'typing' },
   Tuple: { kind: 'from', module: 'typing' },
   Union: { kind: 'from', module: 'typing' },
+  AnyMessage: { kind: 'from', module: 'langchain_core.messages' },
   add_messages: { kind: 'from', module: 'langgraph.graph.message' },
+  IsLastStep: { kind: 'from', module: 'langgraph.managed' },
+  RemainingSteps: { kind: 'from', module: 'langgraph.managed' },
+  Overwrite: { kind: 'from', module: 'langgraph.types' },
   operator: { kind: 'import', module: 'operator' },
 });
 
@@ -75,7 +84,10 @@ function annotationIdentifiers(annotation) {
 /** Resolve imports and unknown names referenced by parsed State annotations. */
 export function analyzeStateFieldAnnotations(fields) {
   const typingNames = new Set();
+  const langchainMessageNames = new Set();
   const langgraphMessageNames = new Set();
+  const langgraphManagedNames = new Set();
+  const langgraphTypeNames = new Set();
   const moduleNames = new Set();
   const unknownNames = new Set();
 
@@ -84,7 +96,10 @@ export function analyzeStateFieldAnnotations(fields) {
       const target = STATE_ANNOTATION_IMPORTS[name];
       if (target?.kind === 'import') moduleNames.add(target.module);
       else if (target?.module === 'typing') typingNames.add(name);
+      else if (target?.module === 'langchain_core.messages') langchainMessageNames.add(name);
       else if (target?.module === 'langgraph.graph.message') langgraphMessageNames.add(name);
+      else if (target?.module === 'langgraph.managed') langgraphManagedNames.add(name);
+      else if (target?.module === 'langgraph.types') langgraphTypeNames.add(name);
       else if (!STATE_ANNOTATION_BUILTINS.has(name) && !EMITTED_ANNOTATION_NAMES.has(name)) {
         unknownNames.add(name);
       }
@@ -93,7 +108,10 @@ export function analyzeStateFieldAnnotations(fields) {
 
   return {
     typingNames: [...typingNames].sort(),
+    langchainMessageNames: [...langchainMessageNames].sort(),
     langgraphMessageNames: [...langgraphMessageNames].sort(),
+    langgraphManagedNames: [...langgraphManagedNames].sort(),
+    langgraphTypeNames: [...langgraphTypeNames].sort(),
     moduleNames: [...moduleNames].sort(),
     unknownNames: [...unknownNames].sort(),
   };
@@ -114,10 +132,11 @@ export function parseStateFields(text) {
 }
 
 /** The branch key an edge leaving a conditional node contributes to `path_map`. */
-export function branchKeyOf(edge, targetNode, nodeNames) {
+export function branchKeyOf(edge, targetNode, nodeNames, isLoop = false) {
   const explicit = typeof edge?.data?.branchKey === 'string' ? edge.data.branchKey.trim() : '';
   if (explicit) return explicit;
   if (targetNode?.data?.type === 'end') return 'end';
+  if (isLoop) return '';
   return nodeNames.get(targetNode?.id) || 'branch';
 }
 
@@ -171,6 +190,7 @@ export function buildPlan({ nodes = [], edges = [], graphName, stateFields } = {
   };
 
   const known = (edge) => byId.has(edge.source) && byId.has(edge.target);
+  const adjacency = buildAdjacency({ nodes, edges });
 
   const plainEdges = edges.filter(
     (edge) =>
@@ -181,15 +201,25 @@ export function buildPlan({ nodes = [], edges = [], graphName, stateFields } = {
       && asTarget(edge.target),
   );
 
-  const routers = routerNodes
+  const allRouters = routerNodes
     .map((node) => {
       const branches = edges
         .filter((edge) => known(edge) && edge.source === node.id && asTarget(edge.target))
-        .map((edge) => ({
-          edgeId: edge.id,
-          key: branchKeyOf(edge, byId.get(edge.target), nodeNames),
-          target: asTarget(edge.target),
-        }));
+        .map((edge) => {
+          const targetNode = byId.get(edge.target);
+          const isLoop = isLoopbackBranch(node.id, edge.target, adjacency);
+          const explicitKey = typeof edge.data?.branchKey === 'string' ? edge.data.branchKey.trim() : '';
+          return {
+            edgeId: edge.id,
+            key: branchKeyOf(edge, targetNode, nodeNames, isLoop),
+            hasExplicitKey: Boolean(explicitKey),
+            target: asTarget(edge.target),
+            targetLabel: targetNode.data?.type === 'end'
+              ? 'END'
+              : nodeNames.get(edge.target) || targetNode.data?.label || edge.target,
+            isLoop,
+          };
+        });
       const sources = [];
       edges
         .filter((edge) => known(edge) && edge.target === node.id && asSource(edge.source))
@@ -204,8 +234,10 @@ export function buildPlan({ nodes = [], edges = [], graphName, stateFields } = {
         branches,
         sources,
       };
-    })
-    .filter((router) => router.branches.length > 0 && router.sources.length > 0);
+    });
+  const routers = allRouters.filter(
+    (router) => router.branches.length > 0 && router.sources.length > 0,
+  );
 
   return {
     graphName: safeGraphName,
@@ -214,6 +246,8 @@ export function buildPlan({ nodes = [], edges = [], graphName, stateFields } = {
     codeNodes,
     nodeNames,
     functionNames,
+    allRouters,
+    hasCycle: hasDirectedCycle(adjacency),
     // START edges are emitted first so the generated graph reads top-down.
     startEdges: plainEdges.filter((edge) => typeOf(edge.source) === 'start'),
     plainEdges: plainEdges.filter((edge) => typeOf(edge.source) !== 'start'),
@@ -239,13 +273,86 @@ function renderNodeFunction(node, functionName) {
 }
 
 function renderRouterFunction(router) {
-  const keys = [...new Set(router.branches.map((branch) => branch.key))];
+  const uniqueBranches = router.branches.filter(
+    (branch, index, branches) => branches.findIndex((candidate) => candidate.key === branch.key) === index,
+  );
+  const keys = uniqueBranches.map((branch) => branch.key);
   const literal = keys.map(pyStr).join(', ');
-  return [
+  const defaultBranch = uniqueBranches.find((branch) => branch.target === 'END')
+    || uniqueBranches.find((branch) => !branch.isLoop)
+    || uniqueBranches[0];
+  const loopBranches = uniqueBranches.filter((branch) => branch.isLoop);
+  const lines = [
     `def ${router.functionName}(state: ${STATE_CLASS}) -> Literal[${literal}]:`,
-    `    """TODO: '${pyDocText(router.label)}' 분기 조건을 구현하세요."""`,
-    `    return ${pyStr(keys[0])}`,
-  ].join('\n');
+  ];
+  if (loopBranches.length > 0) {
+    const descriptions = loopBranches
+      .map((branch) => `${branch.key || '(빈 키)'} -> ${branch.targetLabel}`)
+      .join(', ');
+    lines.push(
+      `    """TODO: '${pyDocText(router.label)}' 분기 조건을 구현하세요.`,
+      `    루프 분기 ${pyDocText(descriptions)}: 종료 조건을 반드시 구현하세요.`,
+      '    """',
+    );
+  } else {
+    lines.push(`    """TODO: '${pyDocText(router.label)}' 분기 조건을 구현하세요."""`);
+  }
+  lines.push(`    return ${pyStr(defaultBranch.key)}`);
+  return lines.join('\n');
+}
+
+function annotatedBase(annotation) {
+  const text = String(annotation).trim();
+  if (!text.startsWith('Annotated[') || !text.endsWith(']')) return text;
+  const content = text.slice('Annotated['.length, -1);
+  let depth = 0;
+  for (let index = 0; index < content.length; index += 1) {
+    const character = content[index];
+    if ('[({'.includes(character)) depth += 1;
+    else if ('])}'.includes(character)) depth -= 1;
+    else if (character === ',' && depth === 0) return content.slice(0, index).trim();
+  }
+  return text;
+}
+
+function defaultForAnnotation(annotation) {
+  const base = annotatedBase(annotation);
+  const match = /^(list|dict|str|int|float|bool|set|tuple)(?:\[.*\])?$/.exec(base);
+  if (!match) return null;
+  return {
+    list: '[]',
+    dict: '{}',
+    str: '""',
+    int: '0',
+    float: '0.0',
+    bool: 'False',
+    set: 'set()',
+    tuple: '()',
+  }[match[1]];
+}
+
+function renderCycleExample(plan) {
+  const defaults = plan.stateFields.fields.map((field) => ({
+    name: field.name,
+    value: defaultForAnnotation(field.annotation),
+  }));
+  const canInitialize = defaults.every((field) => field.value !== null);
+  const lines = [
+    'if __name__ == "__main__":',
+    '    # 루프가 있는 그래프입니다. 종료 조건이 성립하지 않으면 recursion_limit 에서 멈춥니다.',
+  ];
+
+  if (!canInitialize) {
+    lines.push('    # TODO: 실제 State 필드에 맞는 초기값을 입력하세요.', '    initial_state = {}');
+  } else if (defaults.length === 0) {
+    lines.push('    initial_state = {}');
+  } else {
+    lines.push('    initial_state = {');
+    defaults.forEach((field) => lines.push(`        ${pyStr(field.name)}: ${field.value},`));
+    lines.push('    }');
+  }
+  lines.push(`    print(${plan.compiledName}.invoke(initial_state, config={"recursion_limit": 25}))`);
+  return lines.join('\n');
 }
 
 function renderGraph(plan) {
@@ -285,6 +392,7 @@ function renderGraph(plan) {
   });
 
   lines.push('', `${plan.compiledName} = ${graphName}.compile()`);
+  if (plan.hasCycle) lines.push('', '', renderCycleExample(plan));
   return lines.join('\n');
 }
 
@@ -320,10 +428,25 @@ export function generatePython(input = {}) {
     `from typing import ${[...typingNames].sort().join(', ')}`,
   ];
   const langgraphImports = [
+    ...(
+      annotationSymbols.langchainMessageNames.length > 0
+        ? [`from langchain_core.messages import ${annotationSymbols.langchainMessageNames.join(', ')}`]
+        : []
+    ),
     `from langgraph.graph import ${langgraphNames.sort().join(', ')}`,
     ...(
       annotationSymbols.langgraphMessageNames.length > 0
         ? [`from langgraph.graph.message import ${annotationSymbols.langgraphMessageNames.join(', ')}`]
+        : []
+    ),
+    ...(
+      annotationSymbols.langgraphManagedNames.length > 0
+        ? [`from langgraph.managed import ${annotationSymbols.langgraphManagedNames.join(', ')}`]
+        : []
+    ),
+    ...(
+      annotationSymbols.langgraphTypeNames.length > 0
+        ? [`from langgraph.types import ${annotationSymbols.langgraphTypeNames.join(', ')}`]
         : []
     ),
   ];

@@ -1,29 +1,14 @@
 import {
   analyzeStateFieldAnnotations,
-  branchKeyOf,
   buildPlan,
   parseStateFields,
 } from '../generator/generatePython.js';
 import { isValidPythonIdentifier, RESERVED_NODE_NAMES } from './identifiers.js';
 import { isCodeNode } from './nodeTypes.js';
+import { buildAdjacency, reachableFrom } from './topology.js';
 
 const error = (id, message, refs = {}) => ({ id, level: 'error', message, nodeIds: [], edgeIds: [], ...refs });
 const warn = (id, message, refs = {}) => ({ id, level: 'warning', message, nodeIds: [], edgeIds: [], ...refs });
-
-function reachableFrom(startIds, adjacency) {
-  const seen = new Set(startIds);
-  const queue = [...startIds];
-  while (queue.length > 0) {
-    const current = queue.shift();
-    (adjacency.get(current) || []).forEach((next) => {
-      if (!seen.has(next)) {
-        seen.add(next);
-        queue.push(next);
-      }
-    });
-  }
-  return seen;
-}
 
 /**
  * Report everything that would make the generated code wrong or would silently
@@ -119,7 +104,6 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
 
   // --- conditional routers ---
   const plan = buildPlan({ nodes, edges, graphName, stateFields });
-  const nodeNames = plan.nodeNames;
 
   routerNodes.forEach((node) => {
     const label = node.data?.label || 'Conditional Edge';
@@ -146,9 +130,21 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
       }));
     }
 
+    const routerPlan = plan.allRouters.find((router) => router.nodeId === node.id);
+    const branchByEdgeId = new Map(
+      (routerPlan?.branches || []).map((branch) => [branch.edgeId, branch]),
+    );
     const keys = new Map();
     branchEdges.forEach((edge) => {
-      const key = branchKeyOf(edge, byId.get(edge.target), nodeNames);
+      const branch = branchByEdgeId.get(edge.id);
+      const key = branch?.key ?? '';
+      if (branch?.isLoop && !branch.hasExplicitKey) {
+        issues.push(error(
+          'missing-loop-branch-key',
+          `Conditional Edge "${label}" 의 루프 분기에는 revise/retry 같은 의미 있는 분기 키가 필요합니다.`,
+          { nodeIds: [node.id, edge.target], edgeIds: [edge.id] },
+        ));
+      }
       if (keys.has(key)) {
         issues.push(error('duplicate-branch-key', `Conditional Edge "${label}" 의 분기 키 "${key}" 가 중복됩니다.`, {
           nodeIds: [node.id],
@@ -162,15 +158,8 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
 
   // --- connectivity ---
   const routable = nodes.filter((node) => node.data?.type !== 'text');
-  const forward = new Map();
-  const backward = new Map();
-  liveEdges.forEach((edge) => {
-    if (typeOf(edge.source) === 'text' || typeOf(edge.target) === 'text') return;
-    if (!forward.has(edge.source)) forward.set(edge.source, []);
-    forward.get(edge.source).push(edge.target);
-    if (!backward.has(edge.target)) backward.set(edge.target, []);
-    backward.get(edge.target).push(edge.source);
-  });
+  const forward = buildAdjacency({ nodes, edges: liveEdges });
+  const backward = buildAdjacency({ nodes, edges: liveEdges }, { reverse: true });
 
   if (startNodes.length > 0) {
     const reached = reachableFrom(startNodes.map((node) => node.id), forward);

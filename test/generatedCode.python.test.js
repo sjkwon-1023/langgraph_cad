@@ -6,7 +6,8 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { generatePython } from '../src/generator/generatePython.js';
-import { edge, minimal, node, reactLoop } from './fixtures.js';
+import { GRAPH_TEMPLATES, createGraphFromTemplate } from '../src/graph/templates.js';
+import { edge, minimal, node, reactLoop, reflectionLoop } from './fixtures.js';
 import { findPython, hasLangGraph } from './pythonEnv.js';
 
 const python = findPython();
@@ -18,7 +19,17 @@ const CASES = {
     ...minimal,
     stateFields: 'messages: Annotated[list, add_messages]',
   },
+  'loop safety annotations': {
+    ...minimal,
+    stateFields: [
+      'messages: Annotated[list[AnyMessage], add_messages]',
+      'remaining_steps: RemainingSteps',
+      'is_last_step: IsLastStep',
+      'result: Overwrite',
+    ].join('\n'),
+  },
   'react loop': reactLoop,
+  'reflection loop': reflectionLoop,
   'conditional entry point': {
     graphName: 'g',
     nodes: [
@@ -79,6 +90,10 @@ const CASES = {
   },
 };
 
+GRAPH_TEMPLATES.forEach(({ id, label }) => {
+  CASES[`template: ${label}`] = createGraphFromTemplate(id);
+});
+
 let workDir;
 test.before(() => {
   workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'langgraph-cad-'));
@@ -107,8 +122,45 @@ test(
   () => {
     for (const [name, graph] of Object.entries(CASES)) {
       const file = writeCase(name, graph);
-      const result = spawnSync(python, [file], { encoding: 'utf8' });
+      const result = spawnSync(
+        python,
+        [
+          '-c',
+          'import runpy, sys; runpy.run_path(sys.argv[1], run_name="langgraph_cad_generated")',
+          file,
+        ],
+        { encoding: 'utf8' },
+      );
       assert.equal(result.status, 0, `${name}: ${result.stderr}`);
+    }
+  },
+);
+
+test(
+  'generated loop stubs terminate without GraphRecursionError',
+  { skip: langgraph ? false : 'langgraph not importable by the test interpreter' },
+  () => {
+    const runner = [
+      'import json, runpy, sys',
+      'namespace = runpy.run_path(sys.argv[1], run_name="langgraph_cad_generated")',
+      'print(namespace["app"].invoke(json.loads(sys.argv[2]), config={"recursion_limit": 6}))',
+    ].join('; ');
+    const cases = [
+      ['react loop', reactLoop, { messages: [] }],
+      ['reflection loop', reflectionLoop, { draft: '' }],
+      ['ReAct template', createGraphFromTemplate('react-agent'), { messages: [] }],
+      ['Evaluator-Optimizer template', createGraphFromTemplate('evaluator-optimizer'), { draft: '', feedback: '' }],
+    ];
+
+    for (const [name, graph, initialState] of cases) {
+      const file = writeCase(`${name} invoke`, graph);
+      const result = spawnSync(python, ['-c', runner, file, JSON.stringify(initialState)], {
+        encoding: 'utf8',
+        timeout: 5000,
+      });
+      assert.equal(result.error, undefined, `${name}: ${result.error?.message}`);
+      assert.equal(result.status, 0, `${name}: ${result.stderr}`);
+      assert.doesNotMatch(result.stderr, /GraphRecursionError/);
     }
   },
 );

@@ -34,6 +34,7 @@ import {
   toFlowNode,
   toPersisted,
 } from '../graph/serialization.js';
+import { createGraphFromTemplate, hasGraphTemplate } from '../graph/templates.js';
 import { validateGraph } from '../graph/validation.js';
 import { EditorContext } from './editorContext.js';
 import { ValidationContext } from './validationContext.js';
@@ -451,6 +452,17 @@ export default function GraphEditor() {
     push('그래프를 초기화했습니다.', 'success');
   }, [push, replaceGraph, requestUrlSave]);
 
+  const handleLoadTemplate = useCallback((templateId) => {
+    if (!hasGraphTemplate(templateId)) {
+      push('알 수 없는 그래프 템플릿입니다.', 'error');
+      return;
+    }
+    if (!window.confirm('현재 그래프를 선택한 템플릿으로 덮어쓸까요?')) return;
+    requestUrlSave();
+    replaceGraph(createGraphFromTemplate(templateId));
+    push('그래프 템플릿을 불러왔습니다.', 'success');
+  }, [push, replaceGraph, requestUrlSave]);
+
   const handleGraphNameChange = useCallback((nextGraphName) => {
     if (nextGraphName === graphName) return;
     requestUrlSave();
@@ -543,6 +555,7 @@ export default function GraphEditor() {
             <NodePalette
               onAddNode={handlePaletteAdd}
               onNodeDragStart={() => setPaletteOpen(false)}
+              onLoadTemplate={handleLoadTemplate}
               onReset={handleReset}
               onCopyUrl={handleCopyUrl}
               onExport={handleExport}

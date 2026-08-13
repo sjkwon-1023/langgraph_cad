@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { NODE_TYPES, NODE_TYPE_KEYS } from '../graph/nodeTypes.js';
+import { GRAPH_TEMPLATES } from '../graph/templates.js';
 
 const actionStyle = (color) => ({
   padding: '10px 15px',
@@ -14,11 +15,12 @@ const actionStyle = (color) => ({
   transition: 'all 0.2s ease',
 });
 
-function ActionButton({ color, onClick, children }) {
+function ActionButton({ color, onClick, ariaLabel, children }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      aria-label={ariaLabel}
       style={actionStyle(color)}
       onMouseEnter={(event) => {
         event.currentTarget.style.background = color;
@@ -34,8 +36,19 @@ function ActionButton({ color, onClick, children }) {
   );
 }
 
-export default function NodePalette({ onAddNode, onNodeDragStart, onReset, onCopyUrl, onExport, onImport, takenTypes }) {
+export default function NodePalette({
+  onAddNode,
+  onNodeDragStart,
+  onLoadTemplate,
+  onReset,
+  onCopyUrl,
+  onExport,
+  onImport,
+  takenTypes,
+}) {
   const fileInput = useRef(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(GRAPH_TEMPLATES[0].id);
+  const selectedTemplate = GRAPH_TEMPLATES.find(({ id }) => id === selectedTemplateId);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', padding: '15px' }}>
@@ -79,6 +92,39 @@ export default function NodePalette({ onAddNode, onNodeDragStart, onReset, onCop
           );
         })}
       </div>
+
+      <hr style={{ margin: '25px 0', border: 0, borderTop: '1px solid #eee' }} />
+
+      <section aria-labelledby="template-heading">
+        <h2 id="template-heading" style={{ margin: '0 0 6px', color: '#333', fontSize: '18px' }}>
+          템플릿
+        </h2>
+        <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#777', lineHeight: 1.4 }}>
+          초기 그래프 구조를 불러옵니다. 현재 그래프를 덮어쓰기 전에 확인합니다.
+        </p>
+        <label htmlFor="graph-template-select" style={{ display: 'block', marginBottom: '5px', fontSize: '13px' }}>
+          그래프 템플릿 선택
+        </label>
+        <select
+          id="graph-template-select"
+          aria-label="그래프 템플릿 선택"
+          value={selectedTemplateId}
+          onChange={(event) => setSelectedTemplateId(event.target.value)}
+          style={{ width: '100%', padding: '9px', border: '1px solid #ccc', borderRadius: '6px', background: '#fff' }}
+        >
+          {GRAPH_TEMPLATES.map(({ id, label }) => <option key={id} value={id}>{label}</option>)}
+        </select>
+        <p style={{ minHeight: '34px', margin: '7px 0 9px', fontSize: '12px', color: '#666', lineHeight: 1.4 }}>
+          {selectedTemplate?.description}
+        </p>
+        <ActionButton
+          color="#7c3aed"
+          ariaLabel="선택한 그래프 템플릿 불러오기"
+          onClick={() => onLoadTemplate(selectedTemplateId)}
+        >
+          템플릿 불러오기
+        </ActionButton>
+      </section>
 
       <hr style={{ margin: '25px 0', border: 0, borderTop: '1px solid #eee' }} />
 

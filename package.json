@@ -6,7 +6,7 @@
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html && node scripts/verify-build.mjs",
-    "test": "node --test test/generatePython.test.js test/generatedCode.python.test.js test/highlight.test.js test/nodePlacement.test.js test/serialization.test.js test/validation.test.js test/verifyBuild.test.js"
+    "test": "node --test test/edgeGeometry.test.js test/generatePython.test.js test/generatedCode.python.test.js test/highlight.test.js test/nodePlacement.test.js test/serialization.test.js test/templates.test.js test/topology.test.js test/validation.test.js test/verifyBuild.test.js"
   },
   "engines": {
     "node": "22"
