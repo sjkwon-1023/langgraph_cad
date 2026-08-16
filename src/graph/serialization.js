@@ -25,15 +25,15 @@ const fail = (reason) => {
 };
 
 function readPosition(raw) {
-  if (!raw || !isFiniteNumber(raw.x) || !isFiniteNumber(raw.y)) fail('노드 좌표가 올바르지 않습니다.');
+  if (!raw || !isFiniteNumber(raw.x) || !isFiniteNumber(raw.y)) fail('The node position is invalid.');
   return { x: raw.x, y: raw.y };
 }
 
 function readNode(raw) {
-  if (!raw || !isString(raw.id) || !raw.id || raw.id.length > MAX_ID) fail('노드 id 가 올바르지 않습니다.');
+  if (!raw || !isString(raw.id) || !raw.id || raw.id.length > MAX_ID) fail('The node ID is invalid.');
   const data = raw.data || {};
   if (!isString(data.type) || !Object.hasOwn(NODE_TYPES, data.type)) {
-    fail(`알 수 없는 노드 타입입니다: ${String(data.type)}`);
+    fail(`Unknown node type: ${String(data.type)}`);
   }
   const node = {
     id: raw.id,
@@ -45,15 +45,15 @@ function readNode(raw) {
   };
   if (needsCodeIdentifier(data.type)) {
     const identifier = isString(data.codeIdentifier) ? data.codeIdentifier : '';
-    if (identifier && !/^[A-Za-z0-9_]+$/.test(identifier)) fail('노드 식별자에 허용되지 않은 문자가 있습니다.');
+    if (identifier && !/^[A-Za-z0-9_]+$/.test(identifier)) fail('The node identifier contains invalid characters.');
     node.data.codeIdentifier = identifier || undefined;
   }
   return node;
 }
 
 function readEdge(raw, nodeIds) {
-  if (!raw || !isString(raw.id) || !raw.id || raw.id.length > MAX_ID) fail('엣지 id 가 올바르지 않습니다.');
-  if (!nodeIds.has(raw.source) || !nodeIds.has(raw.target)) fail('존재하지 않는 노드를 가리키는 엣지가 있습니다.');
+  if (!raw || !isString(raw.id) || !raw.id || raw.id.length > MAX_ID) fail('The edge ID is invalid.');
+  if (!nodeIds.has(raw.source) || !nodeIds.has(raw.target)) fail('An edge refers to a node that does not exist.');
   const data = raw.data || {};
   const edge = { id: raw.id, source: raw.source, target: raw.target, data: {} };
   if (isString(data.branchKey) && data.branchKey.trim()) {
@@ -68,21 +68,21 @@ function readEdge(raw, nodeIds) {
 
 /** Normalise any accepted payload (current or legacy) into the persisted shape. */
 function readState(raw) {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) fail('저장된 그래프 형식이 아닙니다.');
-  if (raw.v !== undefined && raw.v !== STATE_VERSION) fail(`지원하지 않는 저장 버전입니다: ${String(raw.v)}`);
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) fail('This is not a saved graph payload.');
+  if (raw.v !== undefined && raw.v !== STATE_VERSION) fail(`Unsupported save version: ${String(raw.v)}`);
 
-  const rawNodes = Array.isArray(raw.nodes) ? raw.nodes : fail('nodes 가 배열이 아닙니다.');
+  const rawNodes = Array.isArray(raw.nodes) ? raw.nodes : fail('nodes must be an array.');
   const rawEdges = Array.isArray(raw.edges) ? raw.edges : [];
-  if (rawNodes.length > MAX_NODES) fail(`노드가 너무 많습니다 (${rawNodes.length} > ${MAX_NODES}).`);
-  if (rawEdges.length > MAX_EDGES) fail(`엣지가 너무 많습니다 (${rawEdges.length} > ${MAX_EDGES}).`);
+  if (rawNodes.length > MAX_NODES) fail(`Too many nodes (${rawNodes.length} > ${MAX_NODES}).`);
+  if (rawEdges.length > MAX_EDGES) fail(`Too many edges (${rawEdges.length} > ${MAX_EDGES}).`);
 
   const nodes = rawNodes.map(readNode);
   const nodeIds = new Set(nodes.map((node) => node.id));
-  if (nodeIds.size !== nodes.length) fail('중복된 노드 id 가 있습니다.');
+  if (nodeIds.size !== nodes.length) fail('Duplicate node IDs are not allowed.');
 
   const edges = rawEdges.map((edge) => readEdge(edge, nodeIds));
   const edgeIds = new Set(edges.map((edge) => edge.id));
-  if (edgeIds.size !== edges.length) fail('중복된 엣지 id 가 있습니다.');
+  if (edgeIds.size !== edges.length) fail('Duplicate edge IDs are not allowed.');
 
   return {
     v: STATE_VERSION,
@@ -158,7 +158,7 @@ export function decodeState(hash) {
   try {
     parsed = JSON.parse(decodeURIComponent(payload));
   } catch {
-    return { ok: false, reason: 'URL 의 그래프 데이터를 JSON 으로 읽을 수 없습니다.' };
+    return { ok: false, reason: 'The graph data in the URL is not valid JSON.' };
   }
   try {
     return { ok: true, state: readState(parsed) };
@@ -167,20 +167,3 @@ export function decodeState(hash) {
     throw err;
   }
 }
-
-export function decodeJson(text) {
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    return { ok: false, reason: 'JSON 파일을 파싱할 수 없습니다.' };
-  }
-  try {
-    return { ok: true, state: readState(parsed) };
-  } catch (err) {
-    if (err instanceof DecodeError) return { ok: false, reason: err.message };
-    throw err;
-  }
-}
-
-export const encodeJson = (state) => `${JSON.stringify(toPersisted(state), null, 2)}\n`;

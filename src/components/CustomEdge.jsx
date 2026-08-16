@@ -163,7 +163,7 @@ export default function CustomEdge({ id, source, target, sourceX, sourceY, targe
               <input
                 autoFocus
                 value={keyDraft}
-                aria-label="분기 키"
+                aria-label="Branch key"
                 onChange={(event) => setKeyDraft(event.target.value)}
                 onBlur={commitKey}
                 onKeyDown={(event) => {
@@ -175,8 +175,8 @@ export default function CustomEdge({ id, source, target, sourceX, sourceY, targe
             ) : (
               <button
                 type="button"
-                title="라우터 함수가 이 분기를 고를 때 반환할 값"
-                aria-label={`분기 키 ${branchKey} 편집`}
+                title="Value returned when the router function selects this branch"
+                aria-label={`Edit branch key ${branchKey}`}
                 onClick={(event) => {
                   event.stopPropagation();
                   setKeyDraft(data?.branchKey || fallbackKey);
@@ -196,7 +196,7 @@ export default function CustomEdge({ id, source, target, sourceX, sourceY, targe
                   whiteSpace: 'nowrap',
                 }}
               >
-                {branchKey || '(분기 키)'}
+                {branchKey || '(branch key)'}
               </button>
             )}
           </div>
@@ -229,8 +229,8 @@ export default function CustomEdge({ id, source, target, sourceX, sourceY, targe
                 type="button"
                 className="nodrag nopan"
                 onClick={resetCurve}
-                title="곡선을 기본 모양으로 되돌리기"
-                aria-label="곡선 모양 초기화"
+                title="Restore curve to default shape"
+                aria-label="Reset curve shape"
                 style={{
                   position: 'absolute',
                   transform: `translate(-50%, -50%) translate(${control.x + 22}px, ${control.y}px)`,

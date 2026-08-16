@@ -117,7 +117,7 @@ test('unknown State annotation symbols produce an advisory import warning', () =
   assert.equal(result.hasErrors, false);
   assert.equal(
     issue?.message,
-    'State 필드의 "Foo" 는 자동 import 대상이 아닙니다 — 생성 코드 상단에 import 를 직접 추가하세요.',
+    'State field "Foo" is not imported automatically — add its import to the top of the generated code.',
   );
   assert.ok(!result.warnings.some((entry) => entry.message.includes('Annotated')));
 });

@@ -209,32 +209,32 @@ export const PARALLEL_BRANCH_TEMPLATE = {
 export const GRAPH_TEMPLATES = Object.freeze([
   {
     id: 'react-agent',
-    label: 'ReAct 에이전트',
-    description: '도구 호출 뒤 Agent로 돌아오는 라우터 루프',
+    label: 'ReAct Agent',
+    description: 'A router loop that returns to Agent after a tool call',
     graph: REACT_AGENT_TEMPLATE,
   },
   {
     id: 'evaluator-optimizer',
-    label: '반성 루프',
-    description: '평가 결과에 따라 생성을 반복하는 Evaluator-Optimizer',
+    label: 'Reflection Loop',
+    description: 'An Evaluator-Optimizer that repeats generation based on evaluation results',
     graph: EVALUATOR_OPTIMIZER_TEMPLATE,
   },
   {
     id: 'prompt-chaining',
-    label: '순차 파이프라인',
-    description: '품질 게이트를 통과한 결과만 다음 단계로 전달',
+    label: 'Sequential Pipeline',
+    description: 'Passes only quality-gated results to the next step',
     graph: PROMPT_CHAINING_TEMPLATE,
   },
   {
     id: 'routing',
-    label: '라우팅',
-    description: 'START 직후 요청을 세 작업 중 하나로 분기',
+    label: 'Routing',
+    description: 'Routes a request to one of three tasks immediately after START',
     graph: ROUTING_TEMPLATE,
   },
   {
     id: 'parallel-branch',
-    label: '병렬 분기',
-    description: 'START에서 두 작업을 시작한 뒤 결과를 집계',
+    label: 'Parallel Branches',
+    description: 'Starts two tasks from START, then aggregates the results',
     graph: PARALLEL_BRANCH_TEMPLATE,
   },
 ]);

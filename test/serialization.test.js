@@ -4,14 +4,13 @@ import test from 'node:test';
 import {
   STATE_VERSION,
   createInitialState,
-  decodeJson,
   decodeState,
-  encodeJson,
   encodeState,
   toFlowEdge,
   toFlowNode,
   toPersisted,
 } from '../src/graph/serialization.js';
+import { NODE_TYPES } from '../src/graph/nodeTypes.js';
 import { minimal } from './fixtures.js';
 
 // The shape older versions of the app wrote into the URL, junk fields included.
@@ -136,6 +135,20 @@ test('legacy URLs still load, and shed their junk', () => {
   assert.equal(decoded.state.entryPointCodeId, undefined);
 });
 
+test('existing shared URLs preserve the text node type and stored label', () => {
+  const payload = encodeURIComponent(JSON.stringify({
+    v: STATE_VERSION,
+    nodes: [{ id: 'text-1', position: { x: 10, y: 20 }, data: { type: 'text', label: 'Text' } }],
+    edges: [],
+  }));
+  const decoded = decodeState(payload);
+
+  assert.equal(NODE_TYPES.text.type, 'text');
+  assert.equal(decoded.ok, true);
+  assert.equal(decoded.state.nodes[0].data.type, 'text');
+  assert.equal(decoded.state.nodes[0].data.label, 'Text');
+});
+
 test('the new payload is much smaller than the legacy one', () => {
   const before = encodeURIComponent(JSON.stringify(LEGACY)).length;
   const after = encodeState(decodeState(encodeURIComponent(JSON.stringify(LEGACY))).state).length;
@@ -178,13 +191,6 @@ test('the initial state seeds a START node', () => {
   const initial = createInitialState();
   assert.equal(initial.nodes.length, 1);
   assert.equal(initial.nodes[0].data.type, 'start');
-});
-
-test('JSON export round-trips through import', () => {
-  const decoded = decodeJson(encodeJson(minimal));
-  assert.equal(decoded.ok, true);
-  assert.equal(decoded.state.nodes.length, 3);
-  assert.equal(decodeJson('{').ok, false);
 });
 
 test('hydration adds back the React Flow render fields', () => {

@@ -28,46 +28,46 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
 
   // --- graph-level settings ---
   if (!isValidPythonIdentifier(graphName)) {
-    issues.push(error('invalid-graph-name', `Graph Name "${graphName}" 은 Python 식별자로 쓸 수 없습니다.`));
+    issues.push(error('invalid-graph-name', `Graph name "${graphName}" cannot be used as a Python identifier.`));
   }
   const parsedStateFields = parseStateFields(stateFields);
   parsedStateFields.invalid.forEach((line) => {
-    issues.push(error('invalid-state-field', `State 필드 "${line}" 를 "이름: 타입" 형태로 해석할 수 없습니다.`));
+    issues.push(error('invalid-state-field', `State field "${line}" must use the "name: type" format.`));
   });
   analyzeStateFieldAnnotations(parsedStateFields.fields).unknownNames.forEach((name) => {
     issues.push(warn(
       'unknown-state-annotation-symbol',
-      `State 필드의 "${name}" 는 자동 import 대상이 아닙니다 — 생성 코드 상단에 import 를 직접 추가하세요.`,
+      `State field "${name}" is not imported automatically — add its import to the top of the generated code.`,
     ));
   });
 
   // --- START / END ---
   if (startNodes.length === 0) {
-    issues.push(error('no-start', 'START 노드가 없어 그래프의 진입점을 만들 수 없습니다.'));
+    issues.push(error('no-start', 'A START node is required to define the graph entry point.'));
   }
   if (startNodes.length > 1) {
-    issues.push(error('multiple-start', 'START 노드는 하나만 있어야 합니다.', {
+    issues.push(error('multiple-start', 'There must be exactly one START node.', {
       nodeIds: startNodes.map((node) => node.id),
     }));
   }
   if (endNodes.length > 1) {
-    issues.push(error('multiple-end', 'END 노드는 하나만 있어야 합니다.', {
+    issues.push(error('multiple-end', 'There must be exactly one END node.', {
       nodeIds: endNodes.map((node) => node.id),
     }));
   }
   if (endNodes.length === 0) {
-    issues.push(warn('no-end', 'END 노드가 없습니다. 종료 지점을 명시하는 편이 좋습니다.'));
+    issues.push(warn('no-end', 'There is no END node. Defining an explicit end point is recommended.'));
   }
 
   startNodes.forEach((node) => {
     if (!liveEdges.some((edge) => edge.source === node.id)) {
-      issues.push(error('start-no-outgoing', 'START 노드가 아무 노드에도 연결되지 않았습니다.', {
+      issues.push(error('start-no-outgoing', 'The START node is not connected to any node.', {
         nodeIds: [node.id],
       }));
     }
     const incoming = liveEdges.filter((edge) => edge.target === node.id);
     if (incoming.length > 0) {
-      issues.push(error('start-incoming', 'START 노드로 들어오는 엣지는 사용할 수 없습니다.', {
+      issues.push(error('start-incoming', 'Edges into the START node are not allowed.', {
         nodeIds: [node.id],
         edgeIds: incoming.map((edge) => edge.id),
       }));
@@ -77,7 +77,7 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
   endNodes.forEach((node) => {
     const outgoing = liveEdges.filter((edge) => edge.source === node.id);
     if (outgoing.length > 0) {
-      issues.push(error('end-outgoing', 'END 노드에서 나가는 엣지는 사용할 수 없습니다.', {
+      issues.push(error('end-outgoing', 'Edges out of the END node are not allowed.', {
         nodeIds: [node.id],
         edgeIds: outgoing.map((edge) => edge.id),
       }));
@@ -89,12 +89,12 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
   codeNodes.forEach((node) => {
     const name = node.data?.codeIdentifier;
     if (RESERVED_NODE_NAMES.has(name)) {
-      issues.push(error('reserved-node-name', `"${name}" 은 LangGraph 예약어라 노드 이름으로 쓸 수 없습니다.`, {
+      issues.push(error('reserved-node-name', `"${name}" is reserved by LangGraph and cannot be used as a node name.`, {
         nodeIds: [node.id],
       }));
     }
     if (seenNames.has(name)) {
-      issues.push(error('duplicate-node-name', `노드 이름 "${name}" 이 중복됩니다.`, {
+      issues.push(error('duplicate-node-name', `The node name "${name}" is duplicated.`, {
         nodeIds: [seenNames.get(name), node.id],
       }));
     } else {
@@ -112,7 +112,7 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
 
     const chained = outgoing.filter((edge) => typeOf(edge.target) === 'conditional_edge');
     chained.forEach((edge) => {
-      issues.push(error('conditional-chain', `Conditional Edge "${label}" 를 다른 Conditional Edge 에 직접 연결할 수 없습니다.`, {
+      issues.push(error('conditional-chain', `Conditional Edge "${label}" cannot connect directly to another Conditional Edge.`, {
         nodeIds: [node.id, edge.target],
         edgeIds: [edge.id],
       }));
@@ -120,12 +120,12 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
 
     const branchEdges = outgoing.filter((edge) => plan.asTarget(edge.target));
     if (branchEdges.length === 0) {
-      issues.push(error('conditional-no-target', `Conditional Edge "${label}" 에서 나가는 분기가 없어 코드로 생성되지 않습니다.`, {
+      issues.push(error('conditional-no-target', `Conditional Edge "${label}" has no outgoing branch, so no code can be generated for it.`, {
         nodeIds: [node.id],
       }));
     }
     if (incoming.filter((edge) => plan.asSource(edge.source)).length === 0) {
-      issues.push(error('conditional-no-source', `Conditional Edge "${label}" 에 들어오는 노드가 없어 코드로 생성되지 않습니다.`, {
+      issues.push(error('conditional-no-source', `Conditional Edge "${label}" has no incoming node, so no code can be generated for it.`, {
         nodeIds: [node.id],
       }));
     }
@@ -141,12 +141,12 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
       if (branch?.isLoop && !branch.hasExplicitKey) {
         issues.push(error(
           'missing-loop-branch-key',
-          `Conditional Edge "${label}" 의 루프 분기에는 revise/retry 같은 의미 있는 분기 키가 필요합니다.`,
+          `The loop branch of Conditional Edge "${label}" needs a meaningful branch key such as revise or retry.`,
           { nodeIds: [node.id, edge.target], edgeIds: [edge.id] },
         ));
       }
       if (keys.has(key)) {
-        issues.push(error('duplicate-branch-key', `Conditional Edge "${label}" 의 분기 키 "${key}" 가 중복됩니다.`, {
+        issues.push(error('duplicate-branch-key', `Conditional Edge "${label}" has a duplicate branch key "${key}".`, {
           nodeIds: [node.id],
           edgeIds: [keys.get(key), edge.id],
         }));
@@ -166,7 +166,7 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
     routable
       .filter((node) => node.data?.type !== 'start' && !reached.has(node.id))
       .forEach((node) => {
-        issues.push(warn('unreachable', `"${labelOf(node.id)}" 는 START 에서 도달할 수 없습니다.`, {
+        issues.push(warn('unreachable', `"${labelOf(node.id)}" cannot be reached from START.`, {
           nodeIds: [node.id],
         }));
       });
@@ -177,7 +177,7 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
     codeNodes
       .filter((node) => !terminating.has(node.id))
       .forEach((node) => {
-        issues.push(warn('no-path-to-end', `"${labelOf(node.id)}" 에서 END 로 가는 경로가 없습니다.`, {
+        issues.push(warn('no-path-to-end', `There is no path from "${labelOf(node.id)}" to END.`, {
           nodeIds: [node.id],
         }));
       });
@@ -186,7 +186,7 @@ export function validateGraph({ nodes = [], edges = [], graphName = '', stateFie
   routable
     .filter((node) => !liveEdges.some((edge) => edge.source === node.id || edge.target === node.id))
     .forEach((node) => {
-      issues.push(warn('orphan', `"${labelOf(node.id)}" 에 연결된 엣지가 없습니다.`, { nodeIds: [node.id] }));
+      issues.push(warn('orphan', `"${labelOf(node.id)}" has no connected edges.`, { nodeIds: [node.id] }));
     });
 
   const errors = issues.filter((issue) => issue.level === 'error');

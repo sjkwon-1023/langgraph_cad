@@ -26,9 +26,7 @@ import { NODE_TYPES, needsCodeIdentifier } from '../graph/nodeTypes.js';
 import {
   HASH_LENGTH_WARNING,
   createInitialState,
-  decodeJson,
   decodeState,
-  encodeJson,
   encodeState,
   toFlowEdge,
   toFlowNode,
@@ -200,13 +198,13 @@ export default function GraphEditor() {
         const hash = `#${encodeState(stateToSave)}`;
         if (hash.length > HASH_LENGTH_WARNING && !warnedAboutHashLength.current) {
           warnedAboutHashLength.current = true;
-          push('공유 URL이 너무 깁니다. JSON으로 내보내 보관하는 것을 권장합니다.', 'info');
+          push('The share URL is very long and may not work in some apps or browsers.', 'info');
         }
         if (hash === window.location.hash) return;
         window.history.replaceState(null, '', hash);
       } catch (error) {
         console.error('Failed to save the graph URL.', error);
-        push('그래프를 URL에 저장하지 못했습니다.', 'error');
+        push('Could not save the graph to the URL.', 'error');
       }
     }, 400);
     pendingUrlSave.current = timer;
@@ -256,7 +254,7 @@ export default function GraphEditor() {
       const definition = NODE_TYPES[type];
       if (!definition) return;
       if (definition.singleton && nodes.some((node) => node.data.type === type)) {
-        push(`${definition.label} 노드는 하나만 추가할 수 있습니다.`, 'info');
+        push(`Only one ${definition.label} node can be added.`, 'info');
         return;
       }
 
@@ -343,7 +341,7 @@ export default function GraphEditor() {
       const label = nextLabel.trim();
       if (!label) {
         setEditingNodeId(null);
-        push('노드 이름은 비워 둘 수 없습니다.', 'error');
+        push('The node name cannot be empty.', 'error');
         return;
       }
       if (nodesRef.current.find((node) => node.id === nodeId)?.data.label === label) {
@@ -381,39 +379,21 @@ export default function GraphEditor() {
       push(successMessage, 'success');
     } catch (error) {
       console.error('Clipboard write failed.', error);
-      push('클립보드에 복사하지 못했습니다. 브라우저 권한을 확인해 주세요.', 'error');
+      push('Could not copy to the clipboard. Check your browser permissions.', 'error');
     }
   }, [push]);
 
-  const handleCopyCode = useCallback(() => copyText(code, '생성된 코드를 복사했습니다.'), [code, copyText]);
+  const handleCopyCode = useCallback(() => copyText(code, 'Copied the generated code.'), [code, copyText]);
   const handleCopyUrl = useCallback(() => {
     try {
       const url = new URL(window.location.href);
       url.hash = encodeState(currentState);
-      copyText(url.toString(), '현재 그래프 URL을 복사했습니다.');
+      copyText(url.toString(), 'Copied the current graph URL.');
     } catch (error) {
       console.error('Failed to create a share URL.', error);
-      push('공유 URL을 만들지 못했습니다.', 'error');
+      push('Could not create a share URL.', 'error');
     }
   }, [copyText, currentState, push]);
-
-  const handleExport = useCallback(() => {
-    try {
-      const blob = new Blob([encodeJson(currentState)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = `${graphName || 'langgraph-cad'}.json`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
-      push('그래프 JSON을 내보냈습니다.', 'success');
-    } catch (error) {
-      console.error('JSON export failed.', error);
-      push('그래프 JSON을 내보내지 못했습니다.', 'error');
-    }
-  }, [currentState, graphName, push]);
 
   const replaceGraph = useCallback((state) => {
     const hydrated = hydrateState(state);
@@ -429,52 +409,36 @@ export default function GraphEditor() {
     setFitRequest({ nodeIds: hydrated.nodes.map((node) => node.id), attemptsLeft: 8 });
   }, [setEdges, setNodes]);
 
-  const handleImport = useCallback(async (file) => {
-    try {
-      const decoded = decodeJson(await file.text());
-      if (!decoded.ok) {
-        push(decoded.reason, 'error');
-        return;
-      }
-      requestUrlSave();
-      replaceGraph(decoded.state);
-      push('그래프 JSON을 불러왔습니다.', 'success');
-    } catch (error) {
-      console.error('JSON import failed.', error);
-      push('그래프 JSON 파일을 읽지 못했습니다.', 'error');
-    }
-  }, [push, replaceGraph, requestUrlSave]);
-
   const handleReset = useCallback(() => {
-    if (!window.confirm('그래프 전체를 초기 상태로 되돌릴까요?')) return;
+    if (!window.confirm('Reset the entire graph to its initial state?')) return;
     requestUrlSave();
     replaceGraph(createInitialState());
-    push('그래프를 초기화했습니다.', 'success');
+    push('Reset the graph.', 'success');
   }, [push, replaceGraph, requestUrlSave]);
 
   const handleLoadTemplate = useCallback((templateId) => {
     if (!hasGraphTemplate(templateId)) {
-      push('알 수 없는 그래프 템플릿입니다.', 'error');
+      push('Unknown graph template.', 'error');
       return;
     }
-    if (!window.confirm('현재 그래프를 선택한 템플릿으로 덮어쓸까요?')) return;
+    if (!window.confirm('Replace the current graph with the selected template?')) return;
     requestUrlSave();
     replaceGraph(createGraphFromTemplate(templateId));
-    push('그래프 템플릿을 불러왔습니다.', 'success');
+    push('Loaded the graph template.', 'success');
   }, [push, replaceGraph, requestUrlSave]);
 
   const handleApplyPython = useCallback((result) => {
     if (!result.state) return false;
     const summary = [
-      `노드 ${result.summary.nodes}개`,
-      `엣지 ${result.summary.edges}개`,
-      `읽지 못한 줄 ${result.unreadable.length}개`,
-      `add_node 없이 참조된 노드 ${result.implied.length}개`,
+      `${result.summary.nodes} nodes`,
+      `${result.summary.edges} edges`,
+      `${result.unreadable.length} unreadable lines`,
+      `${result.implied.length} nodes referenced without add_node`,
     ].join(' / ');
-    if (!window.confirm(`판정한 Python 코드로 현재 그래프를 덮어쓸까요?\n\n${summary}`)) return false;
+    if (!window.confirm(`Replace the current graph with the reviewed Python code?\n\n${summary}`)) return false;
     requestUrlSave();
     replaceGraph(result.state);
-    push(`Python 코드에서 그래프를 불러왔습니다. ${summary}`, 'success');
+    push(`Loaded the graph from Python code. ${summary}`, 'success');
     return true;
   }, [push, replaceGraph, requestUrlSave]);
 
@@ -517,14 +481,14 @@ export default function GraphEditor() {
             <button
               type="button"
               className="toolbar-button"
-              aria-label="노드 팔레트 열기"
+              aria-label="Open node palette"
               aria-expanded={paletteOpen}
               aria-controls="node-palette"
               onClick={() => setPaletteOpen(true)}
             >
               ☰
             </button>
-            <div className="mobile-tabs" role="tablist" aria-label="작업 화면">
+            <div className="mobile-tabs" role="tablist" aria-label="Workspace views">
               <button
                 type="button"
                 id="editor-tab"
@@ -554,15 +518,15 @@ export default function GraphEditor() {
             <button
               type="button"
               className="drawer-backdrop"
-              aria-label="노드 팔레트 닫기"
+              aria-label="Close node palette"
               onClick={() => setPaletteOpen(false)}
             />
           )}
-          <aside id="node-palette" className={`palette-pane ${paletteOpen ? 'open' : ''}`} aria-label="노드 팔레트">
+          <aside id="node-palette" className={`palette-pane ${paletteOpen ? 'open' : ''}`} aria-label="Node palette">
             <button
               type="button"
               className="drawer-close"
-              aria-label="노드 팔레트 닫기"
+              aria-label="Close node palette"
               onClick={() => setPaletteOpen(false)}
             >
               ×
@@ -573,8 +537,6 @@ export default function GraphEditor() {
               onLoadTemplate={handleLoadTemplate}
               onReset={handleReset}
               onCopyUrl={handleCopyUrl}
-              onExport={handleExport}
-              onImport={handleImport}
               takenTypes={takenTypes}
             />
           </aside>
@@ -586,7 +548,7 @@ export default function GraphEditor() {
             aria-hidden={isNarrow && mobileView !== 'editor'}
             ref={canvasRef}
             className={`editor-pane ${mobileView === 'editor' ? '' : 'mobile-hidden'}`}
-            aria-label="그래프 편집기"
+            aria-label="Graph editor"
           >
             <ReactFlow
               nodes={nodes}
@@ -623,7 +585,7 @@ export default function GraphEditor() {
             aria-labelledby="code-tab"
             aria-hidden={isNarrow && mobileView !== 'code'}
             className={`code-pane ${mobileView === 'code' ? '' : 'mobile-hidden'}`}
-            aria-label="코드 패널"
+            aria-label="Code panel"
           >
             <CodePanel
               code={code}
