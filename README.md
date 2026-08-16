@@ -22,14 +22,14 @@ pip install langgraph
 ## 주요 기능
 
 - 팔레트의 노드를 클릭해 화면 중앙에 추가하거나 캔버스로 드래그 앤 드롭
-- Agent, Tool, Conditional Edge, Text의 표시 이름 편집(생성 코드 식별자는 라벨에서 자동 파생)
-- `State 필드`에 한 줄당 `이름: Python 타입` 형식으로 공유 state 정의
+- Agent, Tool, Conditional Edge, Memo의 표시 이름 편집(생성 코드 식별자는 라벨에서 자동 파생)
+- `State fields`에 한 줄당 `이름: Python 타입` 형식으로 공유 state 정의
 - Conditional Edge에서 나가는 엣지의 분기 키를 캔버스에서 직접 편집
-- ReAct, 반성 루프, 순차 파이프라인, 라우팅, 병렬 분기 템플릿 제공
+- ReAct Agent, Reflection Loop, Sequential Pipeline, Routing, Parallel Branches 템플릿 제공
 - 오류와 경고를 실시간 표시해 초기 설계에서 빠뜨린 노드와 경로를 찾고, 연결된 항목을 클릭해 관련 노드로 이동
 - 생성된 Python 코드를 실시간 확인하고 클립보드로 복사
 - LangGraph Python 소스를 붙여넣고 읽지 못한 줄과 암시된 노드를 검토한 뒤 캔버스 그래프로 변환
-- URL 자동 저장·공유 및 버전이 있는 JSON 내보내기·불러오기
+- URL 자동 저장 및 공유
 - 선택한 엣지의 곡선 조절 및 기본 모양으로 초기화
 - 좁은 화면에서 Editor/Code 탭과 노드 팔레트 drawer 제공
 
@@ -63,14 +63,14 @@ LANGGRAPH_CAD_PYTHON=.venv/bin/python npm test
 
 ### 노드와 엣지
 
-1. 왼쪽 팔레트에서 START, END, Agent, Tool, Conditional Edge, Text 노드를 클릭하거나 캔버스로 끌어다 놓습니다.
+1. 왼쪽 팔레트에서 START, END, Agent, Tool, Conditional Edge, Memo 노드를 클릭하거나 캔버스로 끌어다 놓습니다.
 2. 노드의 source 핸들에서 target 핸들로 드래그해 연결합니다. 같은 노드로 돌아오는 셀프 루프도 만들 수 있습니다. Conditional Edge의 outgoing branch를 앞선 상위 노드로 연결하면 조건이 충족될 때까지 반복하는 루프가 됩니다.
-3. Agent, Tool, Conditional Edge, Text 노드를 선택한 뒤 연필 버튼으로 이름을 편집합니다. START와 END는 이름을 편집할 수 없습니다. Agent, Tool, Conditional Edge는 라벨을 저장할 때 Python 코드 식별자도 함께 자동 관리합니다.
+3. Agent, Tool, Conditional Edge, Memo 노드를 선택한 뒤 연필 버튼으로 이름을 편집합니다. START와 END는 이름을 편집할 수 없습니다. Agent, Tool, Conditional Edge는 라벨을 저장할 때 Python 코드 식별자도 함께 자동 관리합니다.
 4. Conditional Edge에서 나가는 점선 엣지의 라벨을 클릭해 라우터가 반환할 분기 키를 편집합니다. 루프 분기에는 `revise`, `retry`, `tools`처럼 결정의 의미가 드러나는 키를 지정하고, 생성된 라우터 함수에는 루프를 빠져나갈 종료 조건을 구현해야 합니다.
 5. 노드나 엣지를 선택하고 Delete 또는 Backspace를 누르면 삭제됩니다. Shift를 누른 채 여러 항목을 선택할 수 있습니다.
 6. Editor 뷰에서는 좁은 화면에서 한 손가락 드래그로 캔버스를 이동합니다. 데스크톱에서는 왼쪽 드래그로 박스 선택하고 오른쪽 드래그로 캔버스를 이동합니다. 휠로 확대·축소할 수 있습니다.
 
-START와 END 노드는 각각 하나만 둘 수 있습니다. START 노드는 여러 outgoing edge를 가질 수 있으므로 병렬 진입 경로를 표현할 수 있습니다. Text 노드는 메모 전용이며 생성 코드에는 포함되지 않습니다.
+START와 END 노드는 각각 하나만 둘 수 있습니다. START 노드는 여러 outgoing edge를 가질 수 있으므로 병렬 진입 경로를 표현할 수 있습니다. Memo 노드는 메모 전용이며 생성 코드에는 포함되지 않습니다.
 
 ### State와 코드 생성
 
@@ -97,16 +97,16 @@ Python 빌트인은 그대로 사용할 수 있습니다. 그 밖의 심볼은 �
 
 ### Python 코드에서 그래프 불러오기
 
-오른쪽 코드 패널에서 `코드 붙여넣기` 모드로 전환하고 LangGraph Python 소스를 입력한 뒤
-`그래프로 변환`을 누릅니다. 판정 화면에는 노드·엣지 수, 읽지 못한 줄 수, `add_node` 없이
+오른쪽 코드 패널에서 `Paste Code` 모드로 전환하고 LangGraph Python 소스를 입력한 뒤
+`Convert to Graph`를 누릅니다. 판정 화면에는 노드·엣지 수, 읽지 못한 줄 수, `add_node` 없이
 엣지에서만 참조된 노드 수가 표시됩니다. 읽지 못한 그래프 구성 줄은 빨간 배경으로 강조되고 각 줄의
 이유도 함께 나옵니다. 일부 호출만 읽힌 경우에도 이 정보를 숨기지 않으므로 적용 전에 결과를 확인할
 수 있습니다.
 
-`판정 결과 적용`을 누르면 현재 캔버스를 덮어쓸지 다시 확인합니다. 취소하면 캔버스와 공유 URL은
+`Apply parsed result`를 누르면 현재 캔버스를 덮어쓸지 다시 확인합니다. 취소하면 캔버스와 공유 URL은
 바뀌지 않습니다. 적용 후에는 생성 코드 모드로 돌아가며, 고립 노드, START에서 도달할 수 없는 노드,
 END로 가는 경로가 없는 노드 같은 기존 검증 결과를 즉시 확인할 수 있습니다. 그래프를 만드는 호출을
-하나도 찾지 못하면 현재 캔버스를 덮어쓰지 않습니다. 붙여넣은 원문은 그래프나 URL/JSON에 저장되지
+하나도 찾지 못하면 현재 캔버스를 덮어쓰지 않습니다. 붙여넣은 원문은 그래프나 URL에 저장되지
 않는 임시 입력입니다.
 
 정적 가져오기는 다음 형태를 지원합니다.
@@ -127,23 +127,22 @@ END로 가는 경로가 없는 노드 같은 기존 검증 결과를 즉시 확�
 
 왼쪽 팔레트의 템플릿 선택 메뉴에서 다음 다섯 초기 구조를 불러올 수 있습니다.
 
-- **ReAct 에이전트**: Agent→Tool→Agent 루프와 Conditional Edge 라우터 모델링
-- **반성 루프**: 평가 결과에 따라 Generator를 다시 실행하는 Evaluator-Optimizer
-- **순차 파이프라인**: 품질 게이트로 다음 단계 진행 여부를 결정하는 Prompt chaining
-- **라우팅**: START 직후 세 작업 중 하나를 고르는 조건부 진입점
-- **병렬 분기**: START에서 두 작업을 동시에 시작하고 결과를 Aggregate로 모으는 구조
+- **ReAct Agent**: Agent→Tool→Agent 루프와 Conditional Edge 라우터 모델링
+- **Reflection Loop**: 평가 결과에 따라 Generator를 다시 실행하는 Evaluator-Optimizer
+- **Sequential Pipeline**: 품질 게이트로 다음 단계 진행 여부를 결정하는 Prompt chaining
+- **Routing**: START 직후 세 작업 중 하나를 고르는 조건부 진입점
+- **Parallel Branches**: START에서 두 작업을 동시에 시작하고 결과를 Aggregate로 모으는 구조
 
-템플릿은 좌표, State 필드, 명시적인 분기 키가 포함된 초기 설계입니다. `템플릿 불러오기`를 누르면
+템플릿은 좌표, State 필드, 명시적인 분기 키가 포함된 초기 설계입니다. `Load template`을 누르면
 현재 그래프를 덮어쓸지 먼저 확인하며, 불러온 뒤 노드와 라우터의 `TODO` 본문을 실제 로직으로 바꾸면
 됩니다.
 
 ### 저장, 공유, 초기화
 
-- 편집 상태는 URL hash에 자동 저장됩니다. `URL 복사`로 현재 그래프를 공유할 수 있습니다.
-- 큰 그래프는 긴 URL 대신 `JSON 내보내기`를 사용하고, `JSON 불러오기`로 다시 열 수 있습니다.
-- `전체 초기화`는 확인 후 START 노드 하나가 있는 초기 상태로 되돌립니다.
-- `템플릿 불러오기`도 확인 후 현재 그래프 전체를 선택한 초기 구조로 교체합니다.
-- URL 또는 JSON 데이터가 유효하지 않으면 가져오지 않고 오류 메시지를 표시합니다.
+- 편집 상태는 URL hash에 자동 저장됩니다. `Copy URL`로 현재 그래프를 공유할 수 있습니다.
+- `Reset all`은 확인 후 START 노드 하나가 있는 초기 상태로 되돌립니다.
+- `Load template`도 확인 후 현재 그래프 전체를 선택한 초기 구조로 교체합니다.
+- URL 데이터가 유효하지 않으면 가져오지 않고 오류 메시지를 표시합니다.
 
 ## 알려진 한계와 향후 과제
 
@@ -152,7 +151,7 @@ END로 가는 경로가 없는 노드 같은 기존 검증 결과를 즉시 확�
 - undo/redo는 지원하지 않습니다. 기존 LangGraph Python 코드는 위에 설명한 정적 형태에 한해 그래프로 불러올 수 있습니다.
 - `ToolNode`, `tools_condition` 같은 prebuilt 매핑과 checkpointer/interrupt 기반 HITL UI는 제공하지 않습니다.
 - `Send` API와 subgraph 노드 타입은 아직 없습니다.
-- URL payload는 압축하지 않습니다. 큰 그래프는 JSON 파일로 공유하세요.
+- URL payload는 압축하지 않으므로 큰 그래프의 공유 URL은 일부 앱이나 브라우저에서 동작하지 않을 수 있습니다.
 
 ## 라이선스
 

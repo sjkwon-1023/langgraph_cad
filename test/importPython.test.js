@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { buildPlan, generatePython } from '../src/generator/generatePython.js';
 import { importPython } from '../src/graph/importPython.js';
-import { decodeJson } from '../src/graph/serialization.js';
+import { decodeState, encodeState } from '../src/graph/serialization.js';
 import { GRAPH_TEMPLATES } from '../src/graph/templates.js';
 
 function refName(reference) {
@@ -68,7 +68,7 @@ function parsedSignature(state) {
   return { nodes, plainEdges: plainEdges.sort(), conditionalEdges: conditionalEdges.sort() };
 }
 
-test('지원 호출, 구 API, Tool 추론, State 필드와 결정적 ID를 읽는다', () => {
+test('imports supported calls, legacy APIs, inferred tools, State fields, and deterministic IDs', () => {
   const source = [
     'from typing import TypedDict',
     '',
@@ -102,7 +102,7 @@ test('지원 호출, 구 API, Tool 추론, State 필드와 결정적 ID를 읽�
   assert.deepEqual(result.summary, { nodes: 4, edges: 2, routers: 0 });
 });
 
-test('한 줄과 여러 줄 conditional을 라우터 및 branchKey 엣지로 변환한다', () => {
+test('converts single-line and multiline conditionals into routers and branch-key edges', () => {
   const source = [
     'g = StateGraph(State)',
     'g.add_node("source", source)',
@@ -125,7 +125,7 @@ test('한 줄과 여러 줄 conditional을 라우터 및 branchKey 엣지로 변
   assert.deepEqual(result.summary, { nodes: 6, edges: 5, routers: 2 });
 });
 
-test('여러 줄 add_node와 add_edge도 시작 줄에 귀속해 읽는다', () => {
+test('attributes multiline add_node and add_edge calls to their opening lines', () => {
   const result = importPython([
     'g = StateGraph(State)',
     'g.add_node(',
@@ -143,7 +143,7 @@ test('여러 줄 add_node와 add_edge도 시작 줄에 귀속해 읽는다', () 
   assert.deepEqual(result.summary, { nodes: 2, edges: 1, routers: 0 });
 });
 
-test('표식이 있는 시작 줄만 행동 가능한 unreadable 진단으로 기록한다', () => {
+test('records actionable unreadable diagnostics only for marker-bearing opening lines', () => {
   const source = [
     'from langgraph.graph import StateGraph',
     'g = StateGraph(State)',
@@ -165,17 +165,17 @@ test('표식이 있는 시작 줄만 행동 가능한 unreadable 진단으로 �
   assert.equal(result.state, null);
   assert.deepEqual(result.unreadable.map(({ line }) => line), [3, 4, 6, 7, 8, 14]);
   assert.equal(result.unreadable[0].text, 'g.add_node(node_name, fn)');
-  assert.match(result.unreadable[0].reason, /노드 이름이 변수/);
+  assert.match(result.unreadable[0].reason, /node name is a variable/);
   assert.match(result.unreadable[1].reason, /path_map/);
-  assert.match(result.unreadable[2].reason, /반복문/);
+  assert.match(result.unreadable[2].reason, /inside loops/);
   assert.match(result.unreadable[3].reason, /add_sequence/);
   assert.match(result.unreadable[4].reason, /receiver/);
-  assert.match(result.unreadable[5].reason, /닫히지 않았/);
+  assert.match(result.unreadable[5].reason, /not closed/);
   assert.equal(new Set(result.unreadable.map(({ line }) => line)).size, result.unreadable.length);
   assert.deepEqual(result.summary, { nodes: 0, edges: 0, routers: 0 });
 });
 
-test('엣지를 먼저 수집해 뒤에서 선언된 이름은 implied로 오판하지 않는다', () => {
+test('collects edges first so later declarations are not mistaken for implied names', () => {
   const result = importPython([
     'g = StateGraph(State)',
     'g.add_edge("declared_later", "missing")',
@@ -189,7 +189,7 @@ test('엣지를 먼저 수집해 뒤에서 선언된 이름은 implied로 오판
   );
 });
 
-test('변수 path target, 미완성 딕셔너리, 조건문과 함수 블록을 구분한다', () => {
+test('distinguishes variable path targets, incomplete dictionaries, conditional blocks, and function blocks', () => {
   const result = importPython([
     'g = StateGraph(State)',
     'g.add_conditional_edges("a", route, {"go": target})',
@@ -202,13 +202,13 @@ test('변수 path target, 미완성 딕셔너리, 조건문과 함수 블록을 
 
   assert.equal(result.state, null);
   assert.deepEqual(result.unreadable.map(({ line }) => line), [2, 3, 5, 7]);
-  assert.match(result.unreadable[0].reason, /분기 대상이 변수/);
-  assert.match(result.unreadable[1].reason, /딕셔너리가 닫히지/);
-  assert.match(result.unreadable[2].reason, /조건문/);
-  assert.match(result.unreadable[3].reason, /함수 블록/);
+  assert.match(result.unreadable[0].reason, /branch target is a variable/);
+  assert.match(result.unreadable[1].reason, /dictionary is not closed/);
+  assert.match(result.unreadable[2].reason, /conditional blocks/);
+  assert.match(result.unreadable[3].reason, /function blocks/);
 });
 
-test('그래프 표식이 없는 소스는 진단 없이 null을 반환한다', () => {
+test('returns null without diagnostics when the source has no graph markers', () => {
   assert.deepEqual(importPython('import os\n\ndef helper():\n    return "ok"\n'), {
     state: null,
     unreadable: [],
@@ -217,7 +217,7 @@ test('그래프 표식이 없는 소스는 진단 없이 null을 반환한다', 
   });
 });
 
-test('전부 읽지 못하면 null이고 부분 성공이면 구조와 unreadable을 함께 반환한다', () => {
+test('returns null when nothing is readable and preserves partial results with unreadable diagnostics', () => {
   const none = importPython('g = StateGraph(State)\ng.add_node(name, fn)');
   assert.equal(none.state, null);
   assert.equal(none.unreadable.length, 1);
@@ -233,12 +233,12 @@ test('전부 읽지 못하면 null이고 부분 성공이면 구조와 unreadabl
   assert.match(partial.unreadable[0].reason, /endpoint/);
 });
 
-test('같은 입력은 ID, 진단, 좌표까지 완전히 결정적이다', () => {
+test('produces deterministic IDs, diagnostics, and positions for identical input', () => {
   const source = 'g = StateGraph(State)\ng.add_edge(START, "tools")\ng.add_edge("tools", END)';
   assert.deepEqual(importPython(source), importPython(source));
 });
 
-test('공개 state는 공백이 있는 리터럴 노드 이름도 유효한 v1 payload로 반환한다', () => {
+test('returns public state with literal node names containing spaces as a valid v1 payload', () => {
   const result = importPython([
     'g = StateGraph(State)',
     'g.add_node("review step", review_step)',
@@ -247,7 +247,7 @@ test('공개 state는 공백이 있는 리터럴 노드 이름도 유효한 v1 p
   const node = result.state.nodes.find(({ data }) => data.label === 'review step');
 
   assert.equal(node.data.codeIdentifier, undefined);
-  assert.equal(decodeJson(JSON.stringify(result.state)).ok, true);
+  assert.equal(decodeState(encodeState(result.state)).ok, true);
 });
 
 GRAPH_TEMPLATES.forEach(({ id, graph }) => {

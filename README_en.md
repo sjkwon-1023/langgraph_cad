@@ -22,14 +22,14 @@ pip install langgraph
 ## Features
 
 - Add nodes at the viewport center with a palette click or drag them onto the canvas
-- Edit display labels for Agent, Tool, Conditional Edge, and Text nodes (code identifiers are derived automatically)
+- Edit display labels for Agent, Tool, Conditional Edge, and Memo nodes (code identifiers are derived automatically)
 - Define shared state in `State fields`, one `name: Python type` entry per line
 - Edit branch keys directly on edges leaving a Conditional Edge node
-- Load ReAct, evaluator-optimizer, prompt-chaining, routing, and parallel-branch templates
+- Load ReAct Agent, Reflection Loop, Sequential Pipeline, Routing, and Parallel Branches templates
 - See validation errors and warnings that catch missing nodes and paths during initial design, and focus nodes from linked messages
 - Preview generated Python code and copy it to the clipboard
 - Paste LangGraph Python source, review unreadable lines and implied nodes, and convert it into a canvas graph
-- Autosave and share through the URL, or export and import versioned JSON
+- Autosave and share through the URL
 - Adjust an edge curve and reset it to its default shape
 - Use Editor/Code tabs and a palette drawer on narrow screens
 
@@ -64,14 +64,14 @@ LANGGRAPH_CAD_PYTHON=.venv/bin/python npm test
 
 ### Nodes and edges
 
-1. Click START, END, Agent, Tool, Conditional Edge, or Text in the left palette, or drag it onto the canvas.
+1. Click START, END, Agent, Tool, Conditional Edge, or Memo in the left palette, or drag it onto the canvas.
 2. Drag from a source handle to a target handle to connect nodes. Self-loops back to the same node are supported. Connecting an outgoing Conditional Edge branch to an earlier node creates a loop that repeats until its condition changes.
-3. Select an Agent, Tool, Conditional Edge, or Text node and use its pencil button to edit the name. START and END are not editable. Saving a label for Agent, Tool, or Conditional Edge also updates its derived Python identifier.
+3. Select an Agent, Tool, Conditional Edge, or Memo node and use its pencil button to edit the name. START and END are not editable. Saving a label for Agent, Tool, or Conditional Edge also updates its derived Python identifier.
 4. Click the label on a dashed edge leaving a Conditional Edge node to edit the branch key returned by its router. Give loop branches decision-oriented keys such as `revise`, `retry`, or `tools`, and implement a termination condition in the generated router function.
 5. Select nodes or edges and press Delete or Backspace to remove them. Hold Shift for multi-selection.
 6. In the Editor view, drag with one finger to pan the canvas on narrow screens. On desktop, left-drag to box-select and right-drag to pan. Use the wheel to zoom.
 
-Only one START and one END node can exist. START may have multiple outgoing edges, which represents parallel entry paths. Text is a note-only node and is omitted from generated code.
+Only one START and one END node can exist. START may have multiple outgoing edges, which represents parallel entry paths. Memo is a note-only node and is omitted from generated code.
 
 ### State and code generation
 
@@ -99,17 +99,17 @@ code.
 
 ### Import a graph from Python source
 
-Switch the right-hand code panel to `코드 붙여넣기` (Paste Code), enter LangGraph Python source,
-and select `그래프로 변환` (Convert to Graph). The review shows the node and edge counts, the
+Switch the right-hand code panel to `Paste Code`, enter LangGraph Python source, and select
+`Convert to Graph`. The review shows the node and edge counts, the
 number of unreadable lines, and nodes referenced by edges without an `add_node` call. Unreadable
 graph-building lines have a red background and an explanation. If only part of the source can be
 read, the review keeps those losses visible before you apply anything.
 
-`판정 결과 적용` (Apply Reviewed Result) asks again before replacing the current canvas. Canceling
+`Apply parsed result` asks again before replacing the current canvas. Canceling
 leaves both the canvas and share URL unchanged. After applying, the panel returns to generated
 code so the existing checks immediately report isolated nodes, nodes unreachable from START, and
 nodes without a path to END. If no graph-building call can be read, the current canvas is not
-replaced. The pasted source is temporary and is never stored in the graph, URL, or JSON export.
+replaced. The pasted source is temporary and is never stored in the graph or URL.
 
 The static importer supports:
 
@@ -131,23 +131,22 @@ not retain separate canvas-label metadata.
 
 The template selector in the left palette loads one of five initial structures:
 
-- **ReAct agent**: an Agent→Tool→Agent loop and the Conditional Edge router model
-- **Evaluator-Optimizer**: a reflection loop that sends rejected output back to Generator
-- **Prompt chaining**: a quality gate that decides whether the next sequential step runs
+- **ReAct Agent**: an Agent→Tool→Agent loop and the Conditional Edge router model
+- **Reflection Loop**: an Evaluator-Optimizer loop that sends rejected output back to Generator
+- **Sequential Pipeline**: a quality gate that decides whether the next sequential step runs
 - **Routing**: a conditional entry point that chooses one of three tasks immediately after START
-- **Parallel branch**: two START branches that join at an Aggregate node
+- **Parallel Branches**: two START branches that join at an Aggregate node
 
-Each template includes coordinates, State fields, and explicit branch keys. `템플릿 불러오기`
-(Load Template) asks before replacing the current graph; after loading, replace the generated node
+Each template includes coordinates, State fields, and explicit branch keys. `Load template`
+asks before replacing the current graph; after loading, replace the generated node
 and router `TODO` bodies with application logic.
 
 ### Save, share, and reset
 
-- The editor automatically stores its state in the URL hash. Use `URL 복사` (Copy URL) to share the current graph.
-- For large graphs, use `JSON 내보내기` (Export JSON) instead of a long URL, then restore it with `JSON 불러오기` (Import JSON).
-- `전체 초기화` (Reset All) asks for confirmation and restores the initial graph with one START node.
-- `템플릿 불러오기` (Load Template) also asks for confirmation before replacing the entire graph.
-- Invalid URL or JSON data is rejected and reported without replacing the current graph.
+- The editor automatically stores its state in the URL hash. Use `Copy URL` to share the current graph.
+- `Reset all` asks for confirmation and restores the initial graph with one START node.
+- `Load template` also asks for confirmation before replacing the entire graph.
+- Invalid URL data is rejected and reported without replacing the current graph.
 
 ## Known limitations and roadmap
 
@@ -156,7 +155,7 @@ and router `TODO` bodies with application logic.
 - Undo/redo is not supported. Existing LangGraph Python can be imported only in the static forms described above.
 - Prebuilt mappings such as `ToolNode` and `tools_condition`, plus checkpointer/interrupt HITL UI, are not included.
 - `Send` API support and a subgraph node type are not included yet.
-- URL payloads are not compressed. Share large graphs as JSON files.
+- URL payloads are not compressed, so very large share URLs may not work in some apps or browsers.
 
 ## License
 

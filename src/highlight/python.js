@@ -61,7 +61,7 @@ export function tokenizePython(code) {
   return tokens;
 }
 
-/** 토큰 종류를 유지한 채 Python 소스를 1-based 행 모델로 나눈다. */
+/** Split Python source into a 1-based line model while preserving token types. */
 export function tokenizePythonLines(code) {
   const source = String(code ?? '');
   const lines = [{ line: 1, text: '', tokens: [] }];

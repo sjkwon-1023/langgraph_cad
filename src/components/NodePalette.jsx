@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 
 import { NODE_TYPES, NODE_TYPE_KEYS } from '../graph/nodeTypes.js';
 import { GRAPH_TEMPLATES } from '../graph/templates.js';
@@ -42,19 +42,16 @@ export default function NodePalette({
   onLoadTemplate,
   onReset,
   onCopyUrl,
-  onExport,
-  onImport,
   takenTypes,
 }) {
-  const fileInput = useRef(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState(GRAPH_TEMPLATES[0].id);
   const selectedTemplate = GRAPH_TEMPLATES.find(({ id }) => id === selectedTemplateId);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', padding: '15px' }}>
-      <h2 style={{ marginTop: 0, marginBottom: '6px', color: '#333', fontSize: '18px' }}>노드 추가</h2>
+      <h2 style={{ marginTop: 0, marginBottom: '6px', color: '#333', fontSize: '18px' }}>Add nodes</h2>
       <p style={{ margin: '0 0 15px', fontSize: '12px', color: '#777' }}>
-        캔버스로 끌어다 놓거나, 클릭하면 화면 중앙에 추가됩니다.
+        Drag a node onto the canvas, or click to add it at the center of the view.
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -67,7 +64,7 @@ export default function NodePalette({
               type="button"
               draggable={!disabled}
               disabled={disabled}
-              title={disabled ? `${nodeType.label} 노드는 이미 있습니다.` : nodeType.hint}
+              title={disabled ? `A ${nodeType.label} node already exists.` : nodeType.hint}
               onDragStart={(event) => {
                 event.dataTransfer.setData('application/reactflow', key);
                 event.dataTransfer.effectAllowed = 'move';
@@ -97,17 +94,17 @@ export default function NodePalette({
 
       <section aria-labelledby="template-heading">
         <h2 id="template-heading" style={{ margin: '0 0 6px', color: '#333', fontSize: '18px' }}>
-          템플릿
+          Templates
         </h2>
         <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#777', lineHeight: 1.4 }}>
-          초기 그래프 구조를 불러옵니다. 현재 그래프를 덮어쓰기 전에 확인합니다.
+          Load an initial graph structure. You will be asked before the current graph is replaced.
         </p>
         <label htmlFor="graph-template-select" style={{ display: 'block', marginBottom: '5px', fontSize: '13px' }}>
-          그래프 템플릿 선택
+          Select a graph template
         </label>
         <select
           id="graph-template-select"
-          aria-label="그래프 템플릿 선택"
+          aria-label="Select a graph template"
           value={selectedTemplateId}
           onChange={(event) => setSelectedTemplateId(event.target.value)}
           style={{ width: '100%', padding: '9px', border: '1px solid #ccc', borderRadius: '6px', background: '#fff' }}
@@ -119,38 +116,24 @@ export default function NodePalette({
         </p>
         <ActionButton
           color="#7c3aed"
-          ariaLabel="선택한 그래프 템플릿 불러오기"
+          ariaLabel="Load the selected graph template"
           onClick={() => onLoadTemplate(selectedTemplateId)}
         >
-          템플릿 불러오기
+          Load template
         </ActionButton>
       </section>
 
       <hr style={{ margin: '25px 0', border: 0, borderTop: '1px solid #eee' }} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <ActionButton color="#28a745" onClick={onCopyUrl}>URL 복사</ActionButton>
-        <ActionButton color="#0d6efd" onClick={onExport}>JSON 내보내기</ActionButton>
-        <ActionButton color="#0d6efd" onClick={() => fileInput.current?.click()}>JSON 불러오기</ActionButton>
-        <ActionButton color="#dc3545" onClick={onReset}>전체 초기화</ActionButton>
+        <ActionButton color="#28a745" onClick={onCopyUrl}>Copy URL</ActionButton>
+        <ActionButton color="#dc3545" onClick={onReset}>Reset all</ActionButton>
         <ActionButton
           color="#6c757d"
           onClick={() => window.open('https://github.com/sjkwon1023/langgraph_cad/tree/main', '_blank', 'noopener')}
         >
           Readme
         </ActionButton>
-        <input
-          ref={fileInput}
-          type="file"
-          accept="application/json,.json"
-          aria-label="그래프 JSON 파일 선택"
-          style={{ display: 'none' }}
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (file) onImport(file);
-            event.target.value = '';
-          }}
-        />
       </div>
 
       <div style={{ marginTop: 'auto', paddingTop: '20px', fontSize: '12px', color: '#bbb', lineHeight: 1.4 }}>

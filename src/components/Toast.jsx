@@ -77,7 +77,7 @@ export function ToastStack({ toasts, onDismiss }) {
           <button
             type="button"
             onClick={() => onDismiss(toast.id)}
-            aria-label="알림 닫기"
+            aria-label="Dismiss notification"
             style={{
               background: 'transparent',
               border: 'none',

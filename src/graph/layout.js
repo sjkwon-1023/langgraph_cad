@@ -4,8 +4,8 @@ const ORIGIN_X = 80;
 const ORIGIN_Y = 60;
 
 /**
- * START에서의 최단 거리를 기준으로 노드를 결정적으로 배치한다.
- * 도달할 수 없는 노드는 마지막 도달 rank 아래에 한 줄씩 둔다.
+ * Place nodes deterministically based on their shortest distance from START.
+ * Place unreachable nodes one row at a time below the last reachable rank.
  */
 export function layoutGraph({ nodes = [], edges = [] } = {}) {
   const nodeCopies = nodes.map((node) => ({
@@ -72,4 +72,3 @@ export function layoutGraph({ nodes = [], edges = [] } = {}) {
     })),
   };
 }
-

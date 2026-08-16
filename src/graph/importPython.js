@@ -95,12 +95,12 @@ function enclosingBlockReason(lines, maskedLines, lineIndex) {
     const text = maskedLines[index];
     if (!text.trim() || indentation(text) >= currentIndent || !text.trimEnd().endsWith(':')) continue;
     const header = text.trim();
-    if (/^(async\s+)?(for|while)\b/.test(header)) return '반복문 안에서 만들어진 호출은 읽지 못합니다.';
-    if (/^(if|elif|else\b|match\b|case\b)/.test(header)) return '조건문 안에서 만들어진 호출은 읽지 못합니다.';
-    if (/^(async\s+)?def\b/.test(header)) return '함수 블록 안의 그래프 구성 호출은 읽지 못합니다.';
-    return '들여쓰기 블록 안의 동적 그래프 구성 호출은 읽지 못합니다.';
+    if (/^(async\s+)?(for|while)\b/.test(header)) return 'Calls created inside loops cannot be imported.';
+    if (/^(if|elif|else\b|match\b|case\b)/.test(header)) return 'Calls created inside conditional blocks cannot be imported.';
+    if (/^(async\s+)?def\b/.test(header)) return 'Graph construction calls inside function blocks cannot be imported.';
+    return 'Dynamic graph construction calls inside indented blocks cannot be imported.';
   }
-  return '들여쓰기 블록 안의 동적 그래프 구성 호출은 읽지 못합니다.';
+  return 'Dynamic graph construction calls inside indented blocks cannot be imported.';
 }
 
 function findCallEnd(masked, openIndex) {
@@ -184,19 +184,19 @@ function parseEndpoint(raw, { allowEnd = true } = {}) {
 
 function parsePathMap(raw) {
   const text = raw.trim();
-  if (!text.startsWith('{')) return { error: 'path_map은 리터럴 딕셔너리여야 합니다.' };
-  if (!text.endsWith('}')) return { error: 'path_map 딕셔너리가 닫히지 않았습니다.' };
+  if (!text.startsWith('{')) return { error: 'path_map must be a literal dictionary.' };
+  if (!text.endsWith('}')) return { error: 'The path_map dictionary is not closed.' };
   const content = text.slice(1, -1).trim();
   if (!content) return { entries: [] };
   const entries = [];
   for (const part of splitTopLevel(content)) {
     const pair = splitKeyValue(part);
-    if (!pair) return { error: 'path_map 항목의 키와 대상을 구분할 수 없습니다.' };
+    if (!pair) return { error: 'A path_map entry must contain a key and target.' };
     const key = parseStringLiteral(pair[0]);
     const target = parseEndpoint(pair[1], { allowEnd: true });
-    if (key === null) return { error: 'path_map의 분기 키가 문자열 리터럴이 아니라 읽지 못했습니다.' };
+    if (key === null) return { error: 'The path_map branch key must be a string literal.' };
     if (!target || target.kind === 'start') {
-      return { error: 'path_map의 분기 대상이 변수이거나 지원하지 않는 형태라 읽지 못했습니다.' };
+      return { error: 'The path_map branch target is a variable or uses an unsupported form.' };
     }
     entries.push({ key, target });
   }
@@ -269,7 +269,7 @@ function nodeType(name) {
   return /tools?/i.test(name) ? 'tool' : 'agent';
 }
 
-/** 지원하는 정적 LangGraph 호출을 저장 포맷 v1 그래프로 변환한다. */
+/** Convert supported static LangGraph calls into a persisted v1 graph. */
 export function importPython(source) {
   const text = String(source ?? '');
   const masked = maskPython(text);
@@ -291,16 +291,16 @@ export function importPython(source) {
     }
     if (candidate.endIndex < 0) {
       reject(candidate, candidate.marker === 'add_conditional_edges'
-        ? '조건부 엣지 호출의 괄호 또는 path_map 딕셔너리가 닫히지 않았습니다.'
-        : '그래프 구성 호출의 괄호가 닫히지 않았습니다.');
+        ? 'The conditional edge call or path_map dictionary is not closed.'
+        : 'The graph construction call is not closed.');
       return;
     }
     if (candidate.marker === 'StateGraph') {
       const assigned = graphAssignment(candidate);
       if (!assigned) {
-        reject(candidate, 'StateGraph를 단순한 그래프 변수에 할당해야 읽을 수 있습니다.');
+        reject(candidate, 'StateGraph must be assigned to a simple graph variable to be imported.');
       } else if (graphName && graphName !== assigned) {
-        reject(candidate, '여러 StateGraph 변수는 읽지 못합니다.');
+        reject(candidate, 'Multiple StateGraph variables cannot be imported.');
       } else {
         graphName = assigned;
       }
@@ -313,12 +313,12 @@ export function importPython(source) {
   const parsedCalls = [];
   calls.forEach((candidate) => {
     if (!candidate.receiver || !graphName || candidate.receiver !== graphName) {
-      reject(candidate, '다른 그래프 변수 또는 알 수 없는 receiver의 호출은 읽지 못합니다.');
+      reject(candidate, 'Calls on another graph variable or an unknown receiver cannot be imported.');
       return;
     }
     const args = splitTopLevel(candidate.args);
     if (candidate.marker === 'add_sequence') {
-      reject(candidate, 'add_sequence는 지원하지 않습니다. add_node와 add_edge 호출로 펼쳐 주세요.');
+      reject(candidate, 'add_sequence is not supported. Expand it into add_node and add_edge calls.');
       return;
     }
     if (candidate.marker === 'add_node') {
@@ -326,7 +326,7 @@ export function importPython(source) {
       if (args.length === 1 && IDENTIFIER_RE.test(args[0])) name = args[0];
       else if (args.length === 2 && IDENTIFIER_RE.test(args[1])) name = parseStringLiteral(args[0]);
       if (name === null) {
-        reject(candidate, '노드 이름이 변수이거나 지원하지 않는 형태라 읽지 못했습니다.');
+        reject(candidate, 'The node name is a variable or uses an unsupported form.');
         return;
       }
       explicitNames.add(name);
@@ -337,7 +337,7 @@ export function importPython(source) {
       const sourceEndpoint = args.length === 2 ? parseEndpoint(args[0]) : null;
       const targetEndpoint = args.length === 2 ? parseEndpoint(args[1]) : null;
       if (!sourceEndpoint || !targetEndpoint || sourceEndpoint.kind === 'end' || targetEndpoint.kind === 'start') {
-        reject(candidate, '엣지 endpoint가 변수이거나 지원하지 않는 형태라 읽지 못했습니다.');
+        reject(candidate, 'The edge endpoint is a variable or uses an unsupported form.');
         return;
       }
       parsedCalls.push({ kind: 'edge', source: sourceEndpoint, target: targetEndpoint, line: candidate.line });
@@ -346,7 +346,7 @@ export function importPython(source) {
     if (candidate.marker === 'set_entry_point' || candidate.marker === 'set_finish_point') {
       const endpoint = args.length === 1 ? parseEndpoint(args[0]) : null;
       if (!endpoint || endpoint.kind !== 'node') {
-        reject(candidate, '진입점 또는 종료점 이름이 변수라 읽지 못했습니다.');
+        reject(candidate, 'The entry or finish point name is a variable and cannot be imported.');
         return;
       }
       parsedCalls.push(candidate.marker === 'set_entry_point'
@@ -356,18 +356,18 @@ export function importPython(source) {
     }
     if (candidate.marker === 'add_conditional_edges') {
       if (args.length < 3) {
-        reject(candidate, 'path_map이 없어 분기 대상을 알 수 없습니다.');
+        reject(candidate, 'There is no path_map, so the branch targets are unknown.');
         return;
       }
       const sourceEndpoint = parseEndpoint(args[0], { allowEnd: false });
       const router = args[1]?.trim();
       const pathMap = args.length === 3 ? parsePathMap(args[2]) : null;
       if (!sourceEndpoint) {
-        reject(candidate, '조건부 엣지 source가 변수라 읽지 못했습니다.');
+        reject(candidate, 'The conditional edge source is a variable and cannot be imported.');
       } else if (!IDENTIFIER_RE.test(router || '')) {
-        reject(candidate, '라우터 함수가 단순한 식별자가 아니라 읽지 못했습니다.');
+        reject(candidate, 'The router function is not a simple identifier and cannot be imported.');
       } else if (args.length !== 3) {
-        reject(candidate, '지원하지 않는 추가 인수가 있어 조건부 엣지를 읽지 못했습니다.');
+        reject(candidate, 'The conditional edge has unsupported extra arguments and cannot be imported.');
       } else if (pathMap.error) {
         reject(candidate, pathMap.error);
       } else {

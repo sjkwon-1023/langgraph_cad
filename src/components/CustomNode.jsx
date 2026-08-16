@@ -76,8 +76,8 @@ export default function CustomNode({ data, id, selected }) {
       style={style}
       title={
         data.codeIdentifier
-          ? `코드에서의 이름: ${data.codeIdentifier}`
-          : `${data.label} 노드`
+          ? `Code name: ${data.codeIdentifier}`
+          : `${data.label} node`
       }
     >
       {selected && !isEditing && isEditable && (
@@ -88,8 +88,8 @@ export default function CustomNode({ data, id, selected }) {
             setDraft(data.label || '');
             onEditClick(id);
           }}
-          aria-label={`${data.label} 노드 이름 편집`}
-          title="노드 이름 편집"
+          aria-label={`Edit ${data.label} node name`}
+          title="Edit node name"
           style={{
             position: 'absolute',
             top: '-10px',
@@ -119,7 +119,7 @@ export default function CustomNode({ data, id, selected }) {
         <input
           ref={inputRef}
           value={draft}
-          aria-label="노드 이름"
+          aria-label="Node name"
           onChange={(event) => setDraft(event.target.value)}
           onBlur={commit}
           onKeyDown={handleKeyDown}
@@ -137,7 +137,7 @@ export default function CustomNode({ data, id, selected }) {
         />
       ) : (
         <div style={{ fontSize: '14px', fontWeight: '500', userSelect: 'none', textAlign: 'center' }}>
-          {data.label || '(이름 없음)'}
+          {data.label || '(Unnamed)'}
         </div>
       )}
 

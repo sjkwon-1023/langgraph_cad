@@ -91,16 +91,16 @@ function ImportReview({ source, result, onApply }) {
     [result.unreadable],
   );
   const summaryItems = [
-    `노드 ${result.summary.nodes}개`,
-    `엣지 ${result.summary.edges}개`,
-    `읽지 못한 줄 ${result.unreadable.length}개`,
-    `add_node 없이 참조된 노드 ${result.implied.length}개`,
+    `${result.summary.nodes} nodes`,
+    `${result.summary.edges} edges`,
+    `${result.unreadable.length} unreadable lines`,
+    `${result.implied.length} nodes referenced without add_node`,
   ];
 
   return (
     <div style={{ display: 'flex', flex: 1, flexDirection: 'column', gap: '10px', minHeight: 0, overflowY: 'auto' }}>
       <div
-        aria-label="Python 코드 변환 요약"
+        aria-label="Python code conversion summary"
         style={{
           display: 'flex',
           flexWrap: 'wrap',
@@ -121,20 +121,20 @@ function ImportReview({ source, result, onApply }) {
           role="alert"
           style={{ margin: 0, padding: '9px 10px', borderRadius: '6px', background: '#fdecea', color: '#8f1f18', fontSize: '13px' }}
         >
-          그래프를 만드는 호출을 찾지 못했습니다. 현재 캔버스는 변경되지 않습니다.
+          No graph-building calls were found. The current canvas remains unchanged.
         </p>
       )}
 
       {result.implied.length > 0 && (
         <div style={{ padding: '9px 10px', border: '1px solid #ffe08a', borderRadius: '6px', background: '#fff8e1', color: '#6b4d00', fontSize: '13px' }}>
-          <strong>add_node 없이 참조된 노드:</strong> {result.implied.join(', ')}
+          <strong>Nodes referenced without add_node:</strong> {result.implied.join(', ')}
         </div>
       )}
 
       <div style={{ flex: 1, minHeight: '150px', overflow: 'auto', background: '#2d2d2d', borderRadius: '6px', border: '1px solid #444' }}>
         <div
           role="region"
-          aria-label="Python 코드 판정 결과"
+          aria-label="Parsed Python code"
           style={{ minWidth: 'max-content', padding: '10px 0', font: '13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace', color: TOKEN_COLORS.plain }}
         >
           {lines.map((line) => {
@@ -170,10 +170,10 @@ function ImportReview({ source, result, onApply }) {
 
       {result.unreadable.length > 0 && (
         <div style={{ color: '#8f1f18', fontSize: '13px' }}>
-          <strong>읽지 못한 줄과 이유</strong>
+          <strong>Unreadable lines and reasons</strong>
           <ul style={{ margin: '6px 0 0', paddingLeft: '20px' }}>
             {result.unreadable.map((item) => (
-              <li key={item.line}>줄 {item.line}: {item.reason}</li>
+              <li key={item.line}>Line {item.line}: {item.reason}</li>
             ))}
           </ul>
         </div>
@@ -182,11 +182,11 @@ function ImportReview({ source, result, onApply }) {
       {result.state && (
         <button
           type="button"
-          aria-label="판정한 Python 코드를 현재 그래프에 적용"
+          aria-label="Apply parsed Python code to the current graph"
           onClick={onApply}
           style={{ alignSelf: 'flex-start', padding: '9px 14px', borderRadius: '6px', border: 'none', background: '#198754', color: '#fff', cursor: 'pointer', fontSize: '14px' }}
         >
-          판정 결과 적용
+          Apply parsed result
         </button>
       )}
     </div>
@@ -230,14 +230,14 @@ export default function CodePanel({
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, padding: '15px', gap: '12px' }}>
       <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <h2 style={{ margin: 0, color: '#333', fontSize: '18px', flex: 1 }}>
-          {mode === 'generated' ? '생성된 코드' : 'Python 코드 가져오기'}
+          {mode === 'generated' ? 'Generated Code' : 'Import Python Code'}
         </h2>
         {mode === 'generated' && (
           <button
             type="button"
             onClick={onCopy}
             disabled={validation.hasErrors}
-            title={validation.hasErrors ? '오류를 먼저 해결해야 복사할 수 있습니다.' : '코드를 클립보드로 복사'}
+            title={validation.hasErrors ? 'Resolve errors before copying.' : 'Copy code to clipboard'}
             style={{
               padding: '9px 14px',
               borderRadius: '6px',
@@ -248,17 +248,17 @@ export default function CodePanel({
               fontSize: '14px',
             }}
           >
-            코드 복사
+            Copy Code
           </button>
         )}
       </div>
 
-      <div role="group" aria-label="코드 패널 모드" style={{ display: 'flex' }}>
+      <div role="group" aria-label="Code panel mode" style={{ display: 'flex' }}>
         <ModeButton active={mode === 'generated'} rounded="6px 0 0 6px" onClick={() => setMode('generated')}>
-          생성된 코드
+          Generated Code
         </ModeButton>
         <ModeButton active={mode === 'import'} rounded="0 6px 6px 0" onClick={() => setMode('import')}>
-          코드 붙여넣기
+          Paste Code
         </ModeButton>
       </div>
 
@@ -277,7 +277,7 @@ export default function CodePanel({
               style={{ padding: '9px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px', width: '100%', boxSizing: 'border-box' }}
             />
             <label htmlFor="stateFieldsInput" style={{ fontSize: '13px', fontWeight: 500, color: '#333' }}>
-              State 필드 <span style={{ fontWeight: 400, color: '#777' }}>(한 줄에 <code>이름: 타입</code> 하나)</span>
+              State fields <span style={{ fontWeight: 400, color: '#777' }}>(one <code>name: type</code> per line)</span>
             </label>
             <textarea
               id="stateFieldsInput"
@@ -326,15 +326,15 @@ export default function CodePanel({
       ) : (
         <>
           <label htmlFor="pythonSourceInput" style={{ fontSize: '13px', fontWeight: 500, color: '#333' }}>
-            LangGraph Python 소스
+            LangGraph Python source
           </label>
           <textarea
             id="pythonSourceInput"
-            aria-label="그래프로 변환할 LangGraph Python 소스"
+            aria-label="LangGraph Python source to convert into a graph"
             rows={importResult ? 6 : 14}
             value={pythonSource}
             onChange={handleSourceChange}
-            placeholder="StateGraph, add_node, add_edge 호출이 있는 Python 코드를 붙여넣으세요."
+            placeholder="Paste Python code containing StateGraph, add_node, and add_edge calls."
             spellCheck={false}
             style={{
               padding: '10px',
@@ -348,11 +348,11 @@ export default function CodePanel({
           />
           <button
             type="button"
-            aria-label="붙여넣은 Python 코드를 그래프로 변환"
+            aria-label="Convert pasted Python code into a graph"
             onClick={handleConvert}
             style={{ alignSelf: 'flex-start', padding: '9px 14px', borderRadius: '6px', border: 'none', background: '#0d6efd', color: '#fff', cursor: 'pointer', fontSize: '14px' }}
           >
-            그래프로 변환
+            Convert to Graph
           </button>
           {importResult && (
             <ImportReview source={pythonSource} result={importResult} onApply={handleApply} />
